@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net45;net461;netstandard2.0;netcoreapp3.1</TargetFrameworks>
+    <TargetFrameworks>net452;net461;netstandard2.0;netcoreapp3.1</TargetFrameworks>
 
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
@@ -15,7 +15,7 @@
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.0" PrivateAssets="all" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' != 'net45'">
+  <ItemGroup Condition="'$(TargetFramework)' != 'net452'">
     <PackageReference Include="Dapper" Version="2.0.30" />
 
     <!-- this referenced project only targets netstandard2.0 -->

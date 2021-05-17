@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <RootNamespace>Datadog.Trace.ClrProfiler</RootNamespace>
@@ -34,8 +34,8 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0' OR '$(TargetFramework)' == 'netcoreapp3.1'">
-    <PackageReference Include="System.Reflection.Emit.ILGeneration" Version="4.3.0" />
-    <PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.3.0" />
+    <PackageReference Include="System.Reflection.Emit.ILGeneration" Version="4.7.0" />
+    <PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.7.0" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' != 'netstandard2.0' AND '$(TargetFramework)' != 'netcoreapp3.1'">
@@ -57,4 +57,11 @@
       <Link>Integrations\AspNet\SharedConstants.cs</Link>
     </Compile>
   </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="OpenTelemetry" Version="1.0.0-rc1.1" />
+    <PackageReference Include="OpenTelemetry.Exporter.Console" Version="1.0.0-rc1.1" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.0.0-rc1.1" />
+  </ItemGroup>
+
 </Project>

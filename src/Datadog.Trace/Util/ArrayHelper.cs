@@ -6,7 +6,7 @@ namespace Datadog.Trace.Util
     {
         public static T[] Empty<T>()
         {
-#if NET45
+#if NET452
             return EmptyArray<T>.Value;
 #else
             return Array.Empty<T>();
@@ -55,7 +55,7 @@ namespace Datadog.Trace.Util
             Copy(source, target, source.Length);
         }
 
-#if NET45
+#if NET452
         private static class EmptyArray<T>
         {
             internal static readonly T[] Value = new T[0];

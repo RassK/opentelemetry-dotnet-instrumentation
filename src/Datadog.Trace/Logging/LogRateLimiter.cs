@@ -7,7 +7,7 @@ namespace Datadog.Trace.Logging
 {
     internal class LogRateLimiter : ILogRateLimiter
     {
-#if NET45
+#if NET452
         private static readonly DateTime _unixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
 #endif
 
@@ -40,7 +40,7 @@ namespace Datadog.Trace.Logging
             // lineNumber should generally sufficient to uniquely identify the log given our API anyway
             var key = new LogRateBucketKey(filePath, lineNumber);
 
-#if NET45
+#if NET452
             TimeSpan diff = Clock.UtcNow - _unixEpoch;
             var timestamp = diff.TotalSeconds;
 #else

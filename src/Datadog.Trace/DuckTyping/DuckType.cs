@@ -730,7 +730,7 @@ namespace Datadog.Trace.DuckTyping
             private static CreateTypeResult GetProxySlow(Type targetType)
             {
                 Type proxyTypeDefinition = typeof(T);
-#if NET45
+#if NET452
                 if (!proxyTypeDefinition.IsValueType && !UseDirectAccessTo(proxyTypeDefinition))
                 {
                     DuckTypeTypeIsNotPublicException.Throw(proxyTypeDefinition, nameof(proxyTypeDefinition));
