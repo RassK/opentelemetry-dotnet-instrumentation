@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using Datadog.Trace.ClrProfiler.Configuration;
 using Datadog.Trace.Configuration;
 using Datadog.Trace.DiagnosticListeners;
 using Datadog.Trace.Logging;
@@ -70,16 +71,22 @@ namespace Datadog.Trace.ClrProfiler
                 // First call to create Tracer instace
                 Tracer.Instance = new Tracer(plugins);
 
-                _tracerProvider = Sdk.CreateTracerProviderBuilder()
+                var builder = Sdk.CreateTracerProviderBuilder()
+                    .UseEnvironmentVariables(Tracer.Instance.Settings)
                     .AddHttpClientInstrumentation()
                     .SetSampler(new AlwaysOnSampler())
                     .AddSource("OpenTelemetry.AutoInstrumentation")
-                    .AddConsoleExporter()
-                    .Build();
+                    .AddConsoleExporter();
+
+                // TODO: Add SQL Instrumentation
+                // TODO: Add ASP.NET Instrumentation IF NetFramework
+                // TODO: Add ASP.NET Core Instrumentation IF NetCore
+
+                _tracerProvider = builder.Build();
             }
-            catch
+            catch (Exception ex)
             {
-                // ignore
+                Log.Error(ex, "Failed to initialize tracing");
             }
 
 #if !NETFRAMEWORK
