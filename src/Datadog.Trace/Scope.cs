@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Datadog.Trace.Abstractions;
 
 namespace Datadog.Trace
@@ -12,6 +13,7 @@ namespace Datadog.Trace
     {
         private readonly IScopeManager _scopeManager;
         private readonly bool _finishOnClose;
+        private readonly bool _isActivityBased;
 
         internal Scope(Scope parent, Span span, IScopeManager scopeManager, bool finishOnClose)
         {
@@ -21,10 +23,29 @@ namespace Datadog.Trace
             _finishOnClose = finishOnClose;
         }
 
+        internal Scope(Scope parent, Activity activity, IScopeManager scopeManager, bool finishOnClose)
+        {
+            Parent = parent;
+            Activity = activity;
+            _scopeManager = scopeManager;
+            _finishOnClose = finishOnClose;
+            _isActivityBased = true;
+        }
+
+        /// <summary>
+        /// Gets the active span wrapped in this scope (Obsolete)
+        /// </summary>
+        public Span Span { get; }
+
         /// <summary>
         /// Gets the active span wrapped in this scope
         /// </summary>
-        public Span Span { get; }
+        public Activity Activity { get; }
+
+        /// <summary>
+        /// Gets a value indicating whether <see cref="Scope"/> is <see cref="Activity"/> based.
+        /// </summary>
+        public bool IsActivityBased => _isActivityBased;
 
         /// <summary>
         /// Gets the active span wrapped in this scope
@@ -43,7 +64,14 @@ namespace Datadog.Trace
 
             if (_finishOnClose)
             {
-                Span.Finish();
+                if (_isActivityBased)
+                {
+                    Activity.Dispose();
+                }
+                else
+                {
+                    Span.Finish();
+                }
             }
         }
 

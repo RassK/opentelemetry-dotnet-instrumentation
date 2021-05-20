@@ -78,7 +78,7 @@ namespace Datadog.Trace.ClrProfiler
                     .AddHttpClientInstrumentation()
                     .AddSqlClientInstrumentation()
                     .SetSampler(new AlwaysOnSampler())
-                    .AddSource("OpenTelemetry.AutoInstrumentation")
+                    .AddSource("OpenTelemetry.AutoInstrumentation.*")
                     .AddConsoleExporter();
 
                 _tracerProvider = builder.Build();

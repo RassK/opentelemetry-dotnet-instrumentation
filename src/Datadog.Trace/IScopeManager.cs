@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 
 namespace Datadog.Trace
 {
@@ -22,6 +23,8 @@ namespace Datadog.Trace
         Scope Active { get; }
 
         Scope Activate(Span span, bool finishOnClose);
+
+        Scope Activate(Activity activity, bool finishOnClose);
 
         void Close(Scope scope);
     }

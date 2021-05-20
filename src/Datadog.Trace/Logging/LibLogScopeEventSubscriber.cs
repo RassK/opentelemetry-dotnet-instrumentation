@@ -135,7 +135,14 @@ namespace Datadog.Trace.Logging
             // If not, do not waste cycles
             if (_executingIISPreStartInit)
             {
-                RefreshIISPreAppState(traceId: spanEventArgs.Span.TraceId);
+                if (spanEventArgs.IsActivityBased)
+                {
+                    RefreshIISPreAppState(traceId: spanEventArgs.Activity.GetTraceId());
+                }
+                else
+                {
+                    RefreshIISPreAppState(traceId: spanEventArgs.Span.TraceId);
+                }
             }
 
             if (!_executingIISPreStartInit)
@@ -149,7 +156,14 @@ namespace Datadog.Trace.Logging
         {
             if (!_executingIISPreStartInit)
             {
-                SetSerilogCompatibleLogContext(spanEventArgs.Span.TraceId, spanEventArgs.Span.SpanId);
+                if (spanEventArgs.IsActivityBased)
+                {
+                    SetSerilogCompatibleLogContext(spanEventArgs.Activity.GetTraceId(), spanEventArgs.Activity.GetSpanId());
+                }
+                else
+                {
+                    SetSerilogCompatibleLogContext(spanEventArgs.Span.TraceId, spanEventArgs.Span.SpanId);
+                }
             }
         }
 
@@ -166,7 +180,15 @@ namespace Datadog.Trace.Logging
             if (!_executingIISPreStartInit)
             {
                 RemoveAllCorrelationIdentifierContexts();
-                SetLogContext(spanEventArgs.Span.TraceId, spanEventArgs.Span.SpanId);
+
+                if (spanEventArgs.IsActivityBased)
+                {
+                    SetLogContext(spanEventArgs.Activity.GetTraceId(), spanEventArgs.Activity.GetSpanId());
+                }
+                else
+                {
+                    SetLogContext(spanEventArgs.Span.TraceId, spanEventArgs.Span.SpanId);
+                }
             }
         }
 

@@ -1,19 +1,20 @@
 [
   {
-    "name": "GraphQL",
+    "name": "MongoDb",
     "method_replacements": [
       {
         "caller": {},
         "target": {
-          "assembly": "GraphQL",
-          "type": "GraphQL.Execution.ExecutionStrategy",
+          "assembly": "MongoDB.Driver.Core",
+          "type": "MongoDB.Driver.Core.WireProtocol.CommandUsingQueryMessageWireProtocol`1",
           "method": "ExecuteAsync",
           "signature_types": [
-            "System.Threading.Tasks.Task`1<GraphQL.ExecutionResult>",
-            "GraphQL.Execution.ExecutionContext"
+            "System.Threading.Tasks.Task`1<T>",
+            "MongoDB.Driver.Core.Connections.IConnection",
+            "System.Threading.CancellationToken"
           ],
           "minimum_major": 2,
-          "minimum_minor": 3,
+          "minimum_minor": 1,
           "minimum_patch": 0,
           "maximum_major": 2,
           "maximum_minor": 65535,
@@ -21,22 +22,23 @@
         },
         "wrapper": {
           "assembly": "OpenTelemetry.AutoInstrumentation.ClrProfiler.Managed, Version=0.0.1.0, Culture=neutral, PublicKeyToken=34b8972644a12429",
-          "type": "Datadog.Trace.ClrProfiler.AutoInstrumentation.GraphQL.ExecuteAsyncIntegration",
+          "type": "Datadog.Trace.ClrProfiler.AutoInstrumentation.MongoDb.IWireProtocol_ExecuteAsync_Integration",
           "action": "CallTargetModification"
         }
       },
       {
         "caller": {},
         "target": {
-          "assembly": "GraphQL",
-          "type": "GraphQL.Execution.SubscriptionExecutionStrategy",
+          "assembly": "MongoDB.Driver.Core",
+          "type": "MongoDB.Driver.Core.WireProtocol.CommandUsingCommandMessageWireProtocol`1",
           "method": "ExecuteAsync",
           "signature_types": [
-            "System.Threading.Tasks.Task`1<GraphQL.ExecutionResult>",
-            "GraphQL.Execution.ExecutionContext"
+            "System.Threading.Tasks.Task`1<T>",
+            "MongoDB.Driver.Core.Connections.IConnection",
+            "System.Threading.CancellationToken"
           ],
           "minimum_major": 2,
-          "minimum_minor": 3,
+          "minimum_minor": 1,
           "minimum_patch": 0,
           "maximum_major": 2,
           "maximum_minor": 65535,
@@ -44,27 +46,23 @@
         },
         "wrapper": {
           "assembly": "OpenTelemetry.AutoInstrumentation.ClrProfiler.Managed, Version=0.0.1.0, Culture=neutral, PublicKeyToken=34b8972644a12429",
-          "type": "Datadog.Trace.ClrProfiler.AutoInstrumentation.GraphQL.ExecuteAsyncIntegration",
+          "type": "Datadog.Trace.ClrProfiler.AutoInstrumentation.MongoDb.IWireProtocol_ExecuteAsync_Integration",
           "action": "CallTargetModification"
         }
       },
       {
         "caller": {},
         "target": {
-          "assembly": "GraphQL",
-          "type": "GraphQL.Validation.DocumentValidator",
-          "method": "Validate",
+          "assembly": "MongoDB.Driver.Core",
+          "type": "MongoDB.Driver.Core.WireProtocol.CommandWireProtocol`1",
+          "method": "ExecuteAsync",
           "signature_types": [
-            "GraphQL.Validation.IValidationResult",
-            "System.String",
-            "GraphQL.Types.ISchema",
-            "GraphQL.Language.AST.Document",
-            "System.Collections.Generic.IEnumerable`1[GraphQL.Validation.IValidationRule]",
-            "_",
-            "GraphQL.Inputs"
+            "System.Threading.Tasks.Task`1<T>",
+            "MongoDB.Driver.Core.Connections.IConnection",
+            "System.Threading.CancellationToken"
           ],
           "minimum_major": 2,
-          "minimum_minor": 3,
+          "minimum_minor": 1,
           "minimum_patch": 0,
           "maximum_major": 2,
           "maximum_minor": 65535,
@@ -72,7 +70,271 @@
         },
         "wrapper": {
           "assembly": "OpenTelemetry.AutoInstrumentation.ClrProfiler.Managed, Version=0.0.1.0, Culture=neutral, PublicKeyToken=34b8972644a12429",
-          "type": "Datadog.Trace.ClrProfiler.AutoInstrumentation.GraphQL.ValidateIntegration",
+          "type": "Datadog.Trace.ClrProfiler.AutoInstrumentation.MongoDb.IWireProtocol_ExecuteAsync_Integration",
+          "action": "CallTargetModification"
+        }
+      },
+      {
+        "caller": {},
+        "target": {
+          "assembly": "MongoDB.Driver.Core",
+          "type": "MongoDB.Driver.Core.WireProtocol.GetMoreWireProtocol`1",
+          "method": "ExecuteAsync",
+          "signature_types": [
+            "System.Threading.Tasks.Task`1<T>",
+            "MongoDB.Driver.Core.Connections.IConnection",
+            "System.Threading.CancellationToken"
+          ],
+          "minimum_major": 2,
+          "minimum_minor": 1,
+          "minimum_patch": 0,
+          "maximum_major": 2,
+          "maximum_minor": 65535,
+          "maximum_patch": 65535
+        },
+        "wrapper": {
+          "assembly": "OpenTelemetry.AutoInstrumentation.ClrProfiler.Managed, Version=0.0.1.0, Culture=neutral, PublicKeyToken=34b8972644a12429",
+          "type": "Datadog.Trace.ClrProfiler.AutoInstrumentation.MongoDb.IWireProtocol_ExecuteAsync_Integration",
+          "action": "CallTargetModification"
+        }
+      },
+      {
+        "caller": {},
+        "target": {
+          "assembly": "MongoDB.Driver.Core",
+          "type": "MongoDB.Driver.Core.WireProtocol.QueryWireProtocol`1",
+          "method": "ExecuteAsync",
+          "signature_types": [
+            "System.Threading.Tasks.Task`1<T>",
+            "MongoDB.Driver.Core.Connections.IConnection",
+            "System.Threading.CancellationToken"
+          ],
+          "minimum_major": 2,
+          "minimum_minor": 1,
+          "minimum_patch": 0,
+          "maximum_major": 2,
+          "maximum_minor": 65535,
+          "maximum_patch": 65535
+        },
+        "wrapper": {
+          "assembly": "OpenTelemetry.AutoInstrumentation.ClrProfiler.Managed, Version=0.0.1.0, Culture=neutral, PublicKeyToken=34b8972644a12429",
+          "type": "Datadog.Trace.ClrProfiler.AutoInstrumentation.MongoDb.IWireProtocol_ExecuteAsync_Integration",
+          "action": "CallTargetModification"
+        }
+      },
+      {
+        "caller": {},
+        "target": {
+          "assembly": "MongoDB.Driver.Core",
+          "type": "MongoDB.Driver.Core.WireProtocol.WriteWireProtocolBase`1",
+          "method": "ExecuteAsync",
+          "signature_types": [
+            "System.Threading.Tasks.Task`1<T>",
+            "MongoDB.Driver.Core.Connections.IConnection",
+            "System.Threading.CancellationToken"
+          ],
+          "minimum_major": 2,
+          "minimum_minor": 1,
+          "minimum_patch": 0,
+          "maximum_major": 2,
+          "maximum_minor": 65535,
+          "maximum_patch": 65535
+        },
+        "wrapper": {
+          "assembly": "OpenTelemetry.AutoInstrumentation.ClrProfiler.Managed, Version=0.0.1.0, Culture=neutral, PublicKeyToken=34b8972644a12429",
+          "type": "Datadog.Trace.ClrProfiler.AutoInstrumentation.MongoDb.IWireProtocol_ExecuteAsync_Integration",
+          "action": "CallTargetModification"
+        }
+      },
+      {
+        "caller": {},
+        "target": {
+          "assembly": "MongoDB.Driver.Core",
+          "type": "MongoDB.Driver.Core.WireProtocol.KillCursorsWireProtocol",
+          "method": "ExecuteAsync",
+          "signature_types": [
+            "System.Threading.Tasks.Task",
+            "MongoDB.Driver.Core.Connections.IConnection",
+            "System.Threading.CancellationToken"
+          ],
+          "minimum_major": 2,
+          "minimum_minor": 1,
+          "minimum_patch": 0,
+          "maximum_major": 2,
+          "maximum_minor": 65535,
+          "maximum_patch": 65535
+        },
+        "wrapper": {
+          "assembly": "OpenTelemetry.AutoInstrumentation.ClrProfiler.Managed, Version=0.0.1.0, Culture=neutral, PublicKeyToken=34b8972644a12429",
+          "type": "Datadog.Trace.ClrProfiler.AutoInstrumentation.MongoDb.IWireProtocol_ExecuteAsync_Integration",
+          "action": "CallTargetModification"
+        }
+      },
+      {
+        "caller": {},
+        "target": {
+          "assembly": "MongoDB.Driver.Core",
+          "type": "MongoDB.Driver.Core.WireProtocol.KillCursorsWireProtocol",
+          "method": "Execute",
+          "signature_types": [
+            "System.Void",
+            "MongoDB.Driver.Core.Connections.IConnection",
+            "System.Threading.CancellationToken"
+          ],
+          "minimum_major": 2,
+          "minimum_minor": 2,
+          "minimum_patch": 0,
+          "maximum_major": 2,
+          "maximum_minor": 65535,
+          "maximum_patch": 65535
+        },
+        "wrapper": {
+          "assembly": "OpenTelemetry.AutoInstrumentation.ClrProfiler.Managed, Version=0.0.1.0, Culture=neutral, PublicKeyToken=34b8972644a12429",
+          "type": "Datadog.Trace.ClrProfiler.AutoInstrumentation.MongoDb.IWireProtocol_Execute_Integration",
+          "action": "CallTargetModification"
+        }
+      },
+      {
+        "caller": {},
+        "target": {
+          "assembly": "MongoDB.Driver.Core",
+          "type": "MongoDB.Driver.Core.WireProtocol.CommandUsingQueryMessageWireProtocol`1",
+          "method": "Execute",
+          "signature_types": [
+            "T",
+            "MongoDB.Driver.Core.Connections.IConnection",
+            "System.Threading.CancellationToken"
+          ],
+          "minimum_major": 2,
+          "minimum_minor": 2,
+          "minimum_patch": 0,
+          "maximum_major": 2,
+          "maximum_minor": 65535,
+          "maximum_patch": 65535
+        },
+        "wrapper": {
+          "assembly": "OpenTelemetry.AutoInstrumentation.ClrProfiler.Managed, Version=0.0.1.0, Culture=neutral, PublicKeyToken=34b8972644a12429",
+          "type": "Datadog.Trace.ClrProfiler.AutoInstrumentation.MongoDb.IWireProtocol_Generic_Execute_Integration",
+          "action": "CallTargetModification"
+        }
+      },
+      {
+        "caller": {},
+        "target": {
+          "assembly": "MongoDB.Driver.Core",
+          "type": "MongoDB.Driver.Core.WireProtocol.CommandUsingCommandMessageWireProtocol`1",
+          "method": "Execute",
+          "signature_types": [
+            "T",
+            "MongoDB.Driver.Core.Connections.IConnection",
+            "System.Threading.CancellationToken"
+          ],
+          "minimum_major": 2,
+          "minimum_minor": 2,
+          "minimum_patch": 0,
+          "maximum_major": 2,
+          "maximum_minor": 65535,
+          "maximum_patch": 65535
+        },
+        "wrapper": {
+          "assembly": "OpenTelemetry.AutoInstrumentation.ClrProfiler.Managed, Version=0.0.1.0, Culture=neutral, PublicKeyToken=34b8972644a12429",
+          "type": "Datadog.Trace.ClrProfiler.AutoInstrumentation.MongoDb.IWireProtocol_Generic_Execute_Integration",
+          "action": "CallTargetModification"
+        }
+      },
+      {
+        "caller": {},
+        "target": {
+          "assembly": "MongoDB.Driver.Core",
+          "type": "MongoDB.Driver.Core.WireProtocol.CommandWireProtocol`1",
+          "method": "Execute",
+          "signature_types": [
+            "T",
+            "MongoDB.Driver.Core.Connections.IConnection",
+            "System.Threading.CancellationToken"
+          ],
+          "minimum_major": 2,
+          "minimum_minor": 2,
+          "minimum_patch": 0,
+          "maximum_major": 2,
+          "maximum_minor": 65535,
+          "maximum_patch": 65535
+        },
+        "wrapper": {
+          "assembly": "OpenTelemetry.AutoInstrumentation.ClrProfiler.Managed, Version=0.0.1.0, Culture=neutral, PublicKeyToken=34b8972644a12429",
+          "type": "Datadog.Trace.ClrProfiler.AutoInstrumentation.MongoDb.IWireProtocol_Generic_Execute_Integration",
+          "action": "CallTargetModification"
+        }
+      },
+      {
+        "caller": {},
+        "target": {
+          "assembly": "MongoDB.Driver.Core",
+          "type": "MongoDB.Driver.Core.WireProtocol.GetMoreWireProtocol`1",
+          "method": "Execute",
+          "signature_types": [
+            "T",
+            "MongoDB.Driver.Core.Connections.IConnection",
+            "System.Threading.CancellationToken"
+          ],
+          "minimum_major": 2,
+          "minimum_minor": 2,
+          "minimum_patch": 0,
+          "maximum_major": 2,
+          "maximum_minor": 65535,
+          "maximum_patch": 65535
+        },
+        "wrapper": {
+          "assembly": "OpenTelemetry.AutoInstrumentation.ClrProfiler.Managed, Version=0.0.1.0, Culture=neutral, PublicKeyToken=34b8972644a12429",
+          "type": "Datadog.Trace.ClrProfiler.AutoInstrumentation.MongoDb.IWireProtocol_Generic_Execute_Integration",
+          "action": "CallTargetModification"
+        }
+      },
+      {
+        "caller": {},
+        "target": {
+          "assembly": "MongoDB.Driver.Core",
+          "type": "MongoDB.Driver.Core.WireProtocol.QueryWireProtocol`1",
+          "method": "Execute",
+          "signature_types": [
+            "T",
+            "MongoDB.Driver.Core.Connections.IConnection",
+            "System.Threading.CancellationToken"
+          ],
+          "minimum_major": 2,
+          "minimum_minor": 2,
+          "minimum_patch": 0,
+          "maximum_major": 2,
+          "maximum_minor": 65535,
+          "maximum_patch": 65535
+        },
+        "wrapper": {
+          "assembly": "OpenTelemetry.AutoInstrumentation.ClrProfiler.Managed, Version=0.0.1.0, Culture=neutral, PublicKeyToken=34b8972644a12429",
+          "type": "Datadog.Trace.ClrProfiler.AutoInstrumentation.MongoDb.IWireProtocol_Generic_Execute_Integration",
+          "action": "CallTargetModification"
+        }
+      },
+      {
+        "caller": {},
+        "target": {
+          "assembly": "MongoDB.Driver.Core",
+          "type": "MongoDB.Driver.Core.WireProtocol.WriteWireProtocolBase`1",
+          "method": "Execute",
+          "signature_types": [
+            "T",
+            "MongoDB.Driver.Core.Connections.IConnection",
+            "System.Threading.CancellationToken"
+          ],
+          "minimum_major": 2,
+          "minimum_minor": 2,
+          "minimum_patch": 0,
+          "maximum_major": 2,
+          "maximum_minor": 65535,
+          "maximum_patch": 65535
+        },
+        "wrapper": {
+          "assembly": "OpenTelemetry.AutoInstrumentation.ClrProfiler.Managed, Version=0.0.1.0, Culture=neutral, PublicKeyToken=34b8972644a12429",
+          "type": "Datadog.Trace.ClrProfiler.AutoInstrumentation.MongoDb.IWireProtocol_Generic_Execute_Integration",
           "action": "CallTargetModification"
         }
       }

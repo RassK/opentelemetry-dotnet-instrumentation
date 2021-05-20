@@ -1,4 +1,6 @@
 using System;
+using System.Diagnostics;
+using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -30,6 +32,9 @@ namespace Datadog.Trace.ClrProfiler.Integrations
         internal static readonly IntegrationInfo IntegrationId = IntegrationRegistry.GetIntegrationInfo(IntegrationName);
 
         private static readonly IDatadogLogger Log = DatadogLogging.GetLoggerFor(typeof(MongoDbIntegration));
+
+        private static readonly ActivitySource ActivitySource = new ActivitySource(
+            "OpenTelemetry.AutoInstrumentation.MongoDB", "0.0.1");
 
         /// <summary>
         /// Wrap the original method by adding instrumentation code around it.
@@ -386,18 +391,20 @@ namespace Datadog.Trace.ClrProfiler.Integrations
 
             try
             {
-                var tags = new MongoDbTags();
-                scope = tracer.StartActiveWithTags(OperationName, serviceName: serviceName, tags: tags);
-                var span = scope.Span;
-                span.Type = SpanTypes.MongoDb;
-                span.ResourceName = resourceName;
-                tags.DbName = databaseName;
-                tags.Query = query;
-                tags.Collection = collectionName;
-                tags.Host = host;
-                tags.Port = port;
+                var tags = new MongoDbTags
+                {
+                    DbName = databaseName,
+                    Query = query,
+                    Collection = collectionName,
+                    Host = host,
+                    Port = port
+                };
 
                 tags.SetAnalyticsSampleRate(IntegrationId, tracer.Settings, enabledWithGlobalSetting: false);
+
+                scope = tracer.StartActivityWithTags(ActivitySource, OperationName, serviceName: serviceName, tags: tags);
+                var span = scope.Activity;
+                span.SetCustomProperty("ResourceName", resourceName);
             }
             catch (Exception ex)
             {
@@ -411,11 +418,11 @@ namespace Datadog.Trace.ClrProfiler.Integrations
         {
             var scope = tracer.ActiveScope;
 
-            var parent = scope?.Span;
+            var parent = scope?.Activity;
 
             if (parent != null &&
-                parent.Type == SpanTypes.MongoDb &&
-                parent.GetTag(Tags.InstrumentationName) != null)
+                parent.Source == ActivitySource &&
+                parent.Tags.Any(x => x.Key == Tags.InstrumentationName))
             {
                 return scope;
             }

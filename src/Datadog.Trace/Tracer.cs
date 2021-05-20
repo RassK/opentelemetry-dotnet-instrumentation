@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -7,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Datadog.Trace.Abstractions;
 using Datadog.Trace.Agent;
+using Datadog.Trace.Agent.Dummy;
 using Datadog.Trace.Agent.Jaeger;
 using Datadog.Trace.Agent.Zipkin;
 using Datadog.Trace.Configuration;
@@ -441,16 +443,63 @@ namespace Datadog.Trace
             return spanContext;
         }
 
+        internal Scope StartActivityWithTags(ActivitySource activitySource, string operationName, ISpanContext parent = null, string serviceName = null, DateTimeOffset? startTime = null, bool ignoreActiveScope = false, bool finishOnClose = true, ITags tags = null, ulong? spanId = null)
+        {
+            var activity = StartActivity(activitySource, operationName, tags, parent, serviceName, startTime, ignoreActiveScope, spanId);
+            return _scopeManager.Activate(activity, finishOnClose);
+        }
+
         internal Scope StartActiveWithTags(string operationName, ISpanContext parent = null, string serviceName = null, DateTimeOffset? startTime = null, bool ignoreActiveScope = false, bool finishOnClose = true, ITags tags = null, ulong? spanId = null)
         {
             var span = StartSpan(operationName, tags, parent, serviceName, startTime, ignoreActiveScope, spanId);
             return _scopeManager.Activate(span, finishOnClose);
         }
 
+        internal Activity StartActivity(ActivitySource activitySource, string operationName, ITags tags, ISpanContext parent = null, string serviceName = null, DateTimeOffset? startTime = null, bool ignoreActiveScope = false, ulong? spanId = null)
+        {
+            var spanContext = CreateSpanContext(parent, serviceName, ignoreActiveScope, spanId);
+            Activity activity = activitySource.StartActivity(operationName);
+
+            activity.SetCustomProperty("SpanContext", spanContext);
+
+            // Apply tags
+            if (tags != null)
+            {
+                foreach (var entry in tags.GetAllTags())
+                {
+                    activity.SetTag(entry.Key, entry.Value);
+                }
+            }
+
+            // Apply any global tags
+            if (Settings.GlobalTags.Count > 0)
+            {
+                foreach (var entry in Settings.GlobalTags)
+                {
+                    activity.SetTag(entry.Key, entry.Value);
+                }
+            }
+
+            // automatically add the "env" tag if defined, taking precedence over an "env" tag set from a global tag
+            var env = Settings.Environment;
+            if (!string.IsNullOrWhiteSpace(env))
+            {
+                activity.SetTag(Tags.Env, env);
+            }
+
+            // automatically add the "version" tag if defined, taking precedence over an "version" tag set from a global tag
+            var version = Settings.ServiceVersion;
+            if (!string.IsNullOrWhiteSpace(version) && string.Equals(serviceName, DefaultServiceName))
+            {
+                activity.SetTag(Tags.Version, version);
+            }
+
+            return activity;
+        }
+
         internal Span StartSpan(string operationName, ITags tags, ISpanContext parent = null, string serviceName = null, DateTimeOffset? startTime = null, bool ignoreActiveScope = false, ulong? spanId = null)
         {
             var spanContext = CreateSpanContext(parent, serviceName, ignoreActiveScope, spanId);
-
             var span = new Span(spanContext, startTime, tags)
             {
                 OperationName = operationName,
@@ -741,6 +790,9 @@ namespace Datadog.Trace
 
         private static ITraceWriter CreateTraceWriter(TracerSettings settings, IDogStatsd statsd)
         {
+            return new DisabledTraceWriter();
+
+            /*
             IMetrics metrics = statsd != null
                 ? new DogStatsdMetrics(statsd)
                 : new NullMetrics();
@@ -754,6 +806,7 @@ namespace Datadog.Trace
                 default:
                     return new AgentWriter(new Api(settings.AgentUri, TransportStrategy.Get(settings), statsd), metrics, maxBufferSize: settings.TraceBufferSize);
             }
+            */
         }
 
         private static CompositeTextMapPropagator CreateCompositePropagator(TracerSettings settings, ITraceIdConvention traceIdConvention, IReadOnlyCollection<IOTelExtension> extensions)
