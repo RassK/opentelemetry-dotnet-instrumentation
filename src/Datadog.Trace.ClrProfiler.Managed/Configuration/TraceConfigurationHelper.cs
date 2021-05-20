@@ -9,9 +9,22 @@ namespace Datadog.Trace.ClrProfiler.Configuration
     {
         public static TracerProviderBuilder UseEnvironmentVariables(this TracerProviderBuilder builder, TracerSettings settings)
         {
-            builder.SetResourceBuilder(ResourceBuilder.CreateDefault()
-                .AddService(settings.ServiceName, serviceVersion: settings.ServiceVersion));
+            return builder.SetResourceBuilder(ResourceBuilder.CreateDefault()
+                    .AddService(settings.ServiceName, serviceVersion: settings.ServiceVersion))
+                .SetExporter(settings);
+        }
 
+        public static TracerProviderBuilder AddAspNetInstrumentation(this TracerProviderBuilder builder, TracerSettings settings)
+        {
+#if NETFRAMEWORK
+            return builder.AddAspNetInstrumentation();
+#else
+            return builder.AddAspNetCoreInstrumentation();
+#endif
+        }
+
+        private static TracerProviderBuilder SetExporter(this TracerProviderBuilder builder, TracerSettings settings)
+        {
             switch (settings.Exporter)
             {
                 case ExporterType.Zipkin:

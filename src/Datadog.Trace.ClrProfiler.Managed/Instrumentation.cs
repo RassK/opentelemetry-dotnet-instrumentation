@@ -70,17 +70,16 @@ namespace Datadog.Trace.ClrProfiler
 
                 // First call to create Tracer instace
                 Tracer.Instance = new Tracer(plugins);
+                TracerSettings settings = Tracer.Instance.Settings;
 
                 var builder = Sdk.CreateTracerProviderBuilder()
-                    .UseEnvironmentVariables(Tracer.Instance.Settings)
+                    .UseEnvironmentVariables(settings)
+                    .AddAspNetInstrumentation(settings)
                     .AddHttpClientInstrumentation()
+                    .AddSqlClientInstrumentation()
                     .SetSampler(new AlwaysOnSampler())
                     .AddSource("OpenTelemetry.AutoInstrumentation")
                     .AddConsoleExporter();
-
-                // TODO: Add SQL Instrumentation
-                // TODO: Add ASP.NET Instrumentation IF NetFramework
-                // TODO: Add ASP.NET Core Instrumentation IF NetCore
 
                 _tracerProvider = builder.Build();
             }
@@ -112,27 +111,28 @@ namespace Datadog.Trace.ClrProfiler
             //     // ignore
             // }
 
-            // we only support Service Fabric Service Remoting instrumentation on .NET Core (including .NET 5+)
-            // if (string.Equals(FrameworkDescription.Instance.Name, ".NET Core", StringComparison.OrdinalIgnoreCase) ||
-            //     string.Equals(FrameworkDescription.Instance.Name, ".NET", StringComparison.OrdinalIgnoreCase))
-            // {
-            //     try
-            //     {
-            //         ServiceRemotingClient.StartTracing();
-            //     }
-            //     catch
-            //     {
-            //         // ignore
-            //     }
-            //     try
-            //     {
-            //         ServiceRemotingService.StartTracing();
-            //     }
-            //     catch
-            //     {
-            //         // ignore
-            //     }
-            // }
+            // we only support Service Fabric Service Remoting instrumentation on.NET Core(including.NET 5 +)
+            if (string.Equals(FrameworkDescription.Instance.Name, ".NET Core", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(FrameworkDescription.Instance.Name, ".NET", StringComparison.OrdinalIgnoreCase))
+            {
+                try
+                {
+                    ServiceRemotingClient.StartTracing();
+                }
+                catch
+                {
+                    // ignore
+                }
+
+                try
+                {
+                    ServiceRemotingService.StartTracing();
+                }
+                catch
+                {
+                    // ignore
+                }
+            }
 #endif
         }
 
