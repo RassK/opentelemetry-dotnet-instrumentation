@@ -22,7 +22,7 @@ namespace Datadog.Trace.Vendors.StatsdClient
             if (!isValidIPAddress)
             {
                 ipAddress = null;
-#if NET45
+#if NET452
                 IPAddress[] addressList = Dns.GetHostEntry(name).AddressList;
 #else
                 IPAddress[] addressList = Dns.GetHostEntryAsync(name).Result.AddressList;

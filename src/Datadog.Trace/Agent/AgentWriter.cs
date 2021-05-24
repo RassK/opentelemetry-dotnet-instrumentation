@@ -13,7 +13,7 @@ namespace Datadog.Trace.Agent
 {
     internal class AgentWriter : ITraceWriter
     {
-#if NET45
+#if NET452
         private const TaskCreationOptions TaskOptions = TaskCreationOptions.None;
 #else
         private const TaskCreationOptions TaskOptions = TaskCreationOptions.RunContinuationsAsynchronously;
@@ -184,7 +184,7 @@ namespace Datadog.Trace.Agent
 
         private static void CompleteTaskCompletionSource<T>(TaskCompletionSource<T> tcs)
         {
-#if NET45
+#if NET452
             // TaskCreationOptions.RunContinuationsAsynchronously does not exist in .NET 4.5
             // Complete the TCS in a separate thread to prevent the continuation from being inlined
             Task.Run(() => tcs.TrySetResult(default));

@@ -8,7 +8,7 @@ namespace Datadog.Trace.ClrProfiler.Helpers
         public static Guid GetGuidFromNativePointer(long nativePointer)
         {
             var ptr = new IntPtr(nativePointer);
-#if NET45
+#if NET452
             // deprecated
             var moduleVersionId = (Guid)Marshal.PtrToStructure(ptr, typeof(Guid));
 #else

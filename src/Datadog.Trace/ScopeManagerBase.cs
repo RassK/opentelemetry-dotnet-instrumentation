@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using Datadog.Trace.Logging;
 
 namespace Datadog.Trace
@@ -33,6 +34,51 @@ namespace Datadog.Trace
             var scope = new Scope(newParent, span, this, finishOnClose);
             var scopeOpenedArgs = new SpanEventArgs(span);
 
+            return Activate(scope, newParent, scopeOpenedArgs);
+        }
+
+        public Scope Activate(Activity activity, bool finishOnClose)
+        {
+            var newParent = Active;
+
+            var scope = new Scope(newParent, activity, this, finishOnClose);
+            var scopeOpenedArgs = new SpanEventArgs(activity);
+
+            return Activate(scope, newParent, scopeOpenedArgs);
+        }
+
+        public void Close(Scope scope)
+        {
+            var current = Active;
+            var isRootSpan = scope.Parent == null;
+
+            if (current == null || current != scope)
+            {
+                // This is not the current scope for this context, bail out
+                SpanClosed?.Invoke(this, CreateEventArgs(scope));
+                return;
+            }
+
+            // if the scope that was just closed was the active scope,
+            // set its parent as the new active scope
+            Active = scope.Parent;
+            SpanDeactivated?.Invoke(this, CreateEventArgs(scope));
+
+            if (!isRootSpan)
+            {
+                SpanActivated?.Invoke(this, CreateEventArgs(scope.Parent));
+            }
+
+            SpanClosed?.Invoke(this, CreateEventArgs(scope));
+
+            if (isRootSpan)
+            {
+                TraceEnded?.Invoke(this, CreateEventArgs(scope));
+            }
+        }
+
+        private Scope Activate(Scope scope, Scope newParent, SpanEventArgs scopeOpenedArgs)
+        {
             if (newParent == null)
             {
                 TraceStarted?.Invoke(this, scopeOpenedArgs);
@@ -44,7 +90,7 @@ namespace Datadog.Trace
 
             if (newParent != null)
             {
-                SpanDeactivated?.Invoke(this, new SpanEventArgs(newParent.Span));
+                SpanDeactivated?.Invoke(this, CreateEventArgs(newParent));
             }
 
             SpanActivated?.Invoke(this, scopeOpenedArgs);
@@ -52,34 +98,11 @@ namespace Datadog.Trace
             return scope;
         }
 
-        public void Close(Scope scope)
+        private SpanEventArgs CreateEventArgs(Scope scope)
         {
-            var current = Active;
-            var isRootSpan = scope.Parent == null;
-
-            if (current == null || current != scope)
-            {
-                // This is not the current scope for this context, bail out
-                SpanClosed?.Invoke(this, new SpanEventArgs(scope.Span));
-                return;
-            }
-
-            // if the scope that was just closed was the active scope,
-            // set its parent as the new active scope
-            Active = scope.Parent;
-            SpanDeactivated?.Invoke(this, new SpanEventArgs(scope.Span));
-
-            if (!isRootSpan)
-            {
-                SpanActivated?.Invoke(this, new SpanEventArgs(scope.Parent.Span));
-            }
-
-            SpanClosed?.Invoke(this, new SpanEventArgs(scope.Span));
-
-            if (isRootSpan)
-            {
-                TraceEnded?.Invoke(this, new SpanEventArgs(scope.Span));
-            }
+            return scope.IsActivityBased
+                ? new SpanEventArgs(scope.Activity)
+                : new SpanEventArgs(scope.Span);
         }
     }
 }

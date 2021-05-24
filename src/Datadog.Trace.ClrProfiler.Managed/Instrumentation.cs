@@ -1,11 +1,15 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
+using Datadog.Trace.ClrProfiler.Configuration;
 using Datadog.Trace.Configuration;
 using Datadog.Trace.DiagnosticListeners;
 using Datadog.Trace.Logging;
 using Datadog.Trace.Plugins;
 using Datadog.Trace.ServiceFabric;
+using OpenTelemetry;
+using OpenTelemetry.Trace;
 
 namespace Datadog.Trace.ClrProfiler
 {
@@ -25,6 +29,8 @@ namespace Datadog.Trace.ClrProfiler
         public static readonly string ProfilerClsid = "{918728DD-259F-4A6A-AC2B-B85E1B658318}";
 
         private static readonly IDatadogLogger Log = DatadogLogging.GetLoggerFor(typeof(Instrumentation));
+
+        private static TracerProvider _tracerProvider;
 
         /// <summary>
         /// Gets a value indicating whether Datadog's profiler is attached to the current process.
@@ -60,42 +66,61 @@ namespace Datadog.Trace.ClrProfiler
 
             try
             {
+                Console.WriteLine("Profiler Pre >> {0}", typeof(Activity).Assembly.FullName);
+
                 // Creates GlobalSettings instance and loads plugins
                 var plugins = PluginManager.TryLoadPlugins(GlobalSettings.Source.PluginsConfiguration);
 
                 // First call to create Tracer instace
                 Tracer.Instance = new Tracer(plugins);
+                TracerSettings settings = Tracer.Instance.Settings;
+
+                var builder = Sdk.CreateTracerProviderBuilder()
+                    .UseEnvironmentVariables(settings)
+                    .AddAspNetInstrumentation(settings)
+                    .AddHttpClientInstrumentation()
+                    .AddSqlClientInstrumentation()
+                    .SetSampler(new AlwaysOnSampler())
+                    .AddSource("OpenTelemetry.AutoInstrumentation.*")
+                    .AddLegacySource("OpenTelemetry.AutoInstrumentation.*")
+                    .AddLegacySource("OpenTelemetry.AutoInstrumentation.Sample")
+                    .AddLegacySource("OpenTelemetry.AutoInstrumentation.Sample.Start")
+                    .AddLegacySource("OpenTelemetry.AutoInstrumentation.Sample.Stop")
+                    .AddConsoleExporter();
+
+                _tracerProvider = builder.Build();
+
+                Console.WriteLine("Profiler Post >> {0}", typeof(Activity).Assembly.FullName);
             }
-            catch
+            catch (Exception ex)
             {
-                // ignore
+                Log.Error(ex, "Failed to initialize tracing");
             }
 
 #if !NETFRAMEWORK
-            try
-            {
-                if (GlobalSettings.Source.DiagnosticSourceEnabled)
-                {
-                    // check if DiagnosticSource is available before trying to use it
-                    var type = Type.GetType("System.Diagnostics.DiagnosticSource, System.Diagnostics.DiagnosticSource", throwOnError: false);
+            // try
+            // {
+            //     if (GlobalSettings.Source.DiagnosticSourceEnabled)
+            //     {
+            //         // check if DiagnosticSource is available before trying to use it
+            //         var type = Type.GetType("System.Diagnostics.DiagnosticSource, System.Diagnostics.DiagnosticSource", throwOnError: false);
+            //         if (type == null)
+            //         {
+            //             Log.Warning("DiagnosticSource type could not be loaded. Skipping diagnostic observers.");
+            //         }
+            //         else
+            //         {
+            //             // don't call this method unless DiagnosticSource is available
+            //             StartDiagnosticManager();
+            //         }
+            //     }
+            // }
+            // catch
+            // {
+            //     // ignore
+            // }
 
-                    if (type == null)
-                    {
-                        Log.Warning("DiagnosticSource type could not be loaded. Skipping diagnostic observers.");
-                    }
-                    else
-                    {
-                        // don't call this method unless DiagnosticSource is available
-                        StartDiagnosticManager();
-                    }
-                }
-            }
-            catch
-            {
-                // ignore
-            }
-
-            // we only support Service Fabric Service Remoting instrumentation on .NET Core (including .NET 5+)
+            // we only support Service Fabric Service Remoting instrumentation on.NET Core(including.NET 5 +)
             if (string.Equals(FrameworkDescription.Instance.Name, ".NET Core", StringComparison.OrdinalIgnoreCase) ||
                 string.Equals(FrameworkDescription.Instance.Name, ".NET", StringComparison.OrdinalIgnoreCase))
             {

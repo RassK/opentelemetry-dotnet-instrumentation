@@ -159,7 +159,7 @@ namespace Datadog.Trace.ClrProfiler.Integrations.Testing
                 if (previousTask.Status == TaskStatus.RanToCompletion)
                 {
                     continuation(null, null, state);
-#if NET45
+#if NET452
                     // "If the supplied array/enumerable contains no tasks, the returned task will immediately transition to a RanToCompletion state before it's returned to the caller."
                     // https://docs.microsoft.com/en-us/dotnet/api/system.threading.tasks.task.whenall?redirectedfrom=MSDN&view=netframework-4.5.2#System_Threading_Tasks_Task_WhenAll_System_Threading_Tasks_Task___
                     return Task.WhenAll();

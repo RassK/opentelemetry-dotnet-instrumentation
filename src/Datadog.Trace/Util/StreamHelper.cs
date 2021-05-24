@@ -15,13 +15,13 @@ namespace Datadog.Trace.Util
         {
             ArraySegment<byte> buffer;
 
-#if !NET45
+#if !NET452
             // GetBuffer returns the underlying storage, which saves an allocation over ToArray.
             if (!byteStream.TryGetBuffer(out buffer))
             {
 #endif
             buffer = new ArraySegment<byte>(byteStream.ToArray(), 0, (int)byteStream.Length);
-#if !NET45
+#if !NET452
             }
 #endif
 
