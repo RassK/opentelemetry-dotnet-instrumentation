@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 using Datadog.Trace.ClrProfiler.Configuration;
 using Datadog.Trace.Configuration;
@@ -65,6 +66,8 @@ namespace Datadog.Trace.ClrProfiler
 
             try
             {
+                Console.WriteLine("Profiler Pre >> {0}", typeof(Activity).Assembly.FullName);
+
                 // Creates GlobalSettings instance and loads plugins
                 var plugins = PluginManager.TryLoadPlugins(GlobalSettings.Source.PluginsConfiguration);
 
@@ -79,9 +82,15 @@ namespace Datadog.Trace.ClrProfiler
                     .AddSqlClientInstrumentation()
                     .SetSampler(new AlwaysOnSampler())
                     .AddSource("OpenTelemetry.AutoInstrumentation.*")
+                    .AddLegacySource("OpenTelemetry.AutoInstrumentation.*")
+                    .AddLegacySource("OpenTelemetry.AutoInstrumentation.Sample")
+                    .AddLegacySource("OpenTelemetry.AutoInstrumentation.Sample.Start")
+                    .AddLegacySource("OpenTelemetry.AutoInstrumentation.Sample.Stop")
                     .AddConsoleExporter();
 
                 _tracerProvider = builder.Build();
+
+                Console.WriteLine("Profiler Post >> {0}", typeof(Activity).Assembly.FullName);
             }
             catch (Exception ex)
             {
