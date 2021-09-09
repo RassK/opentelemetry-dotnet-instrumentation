@@ -25,6 +25,7 @@ partial class Build
     AbsolutePath TracerHomeDirectory => TracerHome ?? (OutputDirectory / "tracer-home");
     AbsolutePath ArtifactsDirectory => Artifacts ?? (OutputDirectory / "artifacts");
     AbsolutePath BuildDataDirectory => RootDirectory / "build_data";
+    AbsolutePath ProfilerTestLogs => BuildDataDirectory / "profiler-logs";
 
     Project NativeProfilerProject => Solution.GetProject(Projects.ClrProfilerNative);
 
@@ -51,6 +52,7 @@ partial class Build
             EnsureExistingDirectory(TracerHomeDirectory);
             EnsureExistingDirectory(ArtifactsDirectory);
             EnsureExistingDirectory(BuildDataDirectory);
+            EnsureExistingDirectory(ProfilerTestLogs);
         });
 
     Target Restore => _ => _
@@ -93,6 +95,20 @@ partial class Build
                 .DisableRestore()
                 .SetTargets("BuildCsharp")
             );
+        });
+
+    Target CompileManagedTests => _ => _
+        .Unlisted()
+        .Description("Compiles the managed code in the test directory")
+        .After(CompileManagedSrc)
+        .Executes(() =>
+        {
+            DotNetMSBuild(x => x
+                .SetTargetPath(MsBuildProject)
+                .SetTargetPlatform(Platform)
+                .SetConfiguration(BuildConfiguration)
+                .DisableRestore()
+                .SetTargets("BuildCsharpTest"));
         });
 
     Target CompileNativeSrc => _ => _
@@ -152,4 +168,29 @@ partial class Build
         .Unlisted()
         .DependsOn(RunNativeTestsWindows)
         .DependsOn(RunNativeTestsLinux);
+
+    Target RunManagedTests => _ => _
+        .Unlisted()
+        .Produces(BuildDataDirectory / "profiler-logs" / "*")
+        .After(BuildTracer)
+        .After(CompileManagedTests)
+        .Executes(() =>
+        {
+            Project[] integrationTests = Solution
+                .GetProjects("IntegrationTests.*")
+                .ToArray();
+
+            DotNetTest(config => config
+                .SetConfiguration(BuildConfiguration)
+                .SetTargetPlatform(Platform)
+                // TODO: Remove if NetFX works
+                .SetFramework(TargetFramework.NETCOREAPP3_1)
+                .EnableNoRestore()
+                .EnableNoBuild()
+                .CombineWith(integrationTests, (s, project) => s
+                    .EnableTrxLogOutput(GetResultsDirectory(project))
+                    .SetProjectFile(project)), degreeOfParallelism: 4);
+        });
+
+    private AbsolutePath GetResultsDirectory(Project proj) => BuildDataDirectory / "results" / proj.Name;
 }
