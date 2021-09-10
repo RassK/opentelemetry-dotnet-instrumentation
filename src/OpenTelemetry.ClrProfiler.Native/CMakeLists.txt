@@ -268,22 +268,20 @@ endif()
 # ******************************************************
 # Define shared target
 # ******************************************************
-SET(TARGET_NAME "OpenTelemetry.ClrProfiler.Native")
-
 if (ISMACOS)
-    add_library(${TARGET_NAME} SHARED
+    add_library("OpenTelemetry.ClrProfiler.Native" SHARED
         dllmain.cpp
         interop.cpp
         ${GENERATED_OBJ_FILES}
     )
 else()
-    add_library(${TARGET_NAME} SHARED
+    add_library("OpenTelemetry.ClrProfiler.Native" SHARED
         dllmain.cpp
         interop.cpp
     )
 endif()
 
-set_target_properties(${TARGET_NAME} PROPERTIES PREFIX "")
+set_target_properties("OpenTelemetry.ClrProfiler.Native" PROPERTIES PREFIX "")
 
 # Define linker libraries
-target_link_libraries(${TARGET_NAME} "OpenTelemetry.ClrProfiler.Native.static")
+target_link_libraries("OpenTelemetry.ClrProfiler.Native" "OpenTelemetry.ClrProfiler.Native.static")
