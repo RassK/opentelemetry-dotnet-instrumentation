@@ -131,8 +131,8 @@ namespace IntegrationTests.Helpers
                 yield return Path.Combine(sampleApplicationOutputDirectory, relativePath);
             }
 
-            yield return Path.Combine(GetExecutingProjectBin(), relativePath);
-            yield return Path.Combine(GetProfilerProjectBin(), fileName);
+            // yield return Path.Combine(GetExecutingProjectBin(), relativePath);
+            // yield return Path.Combine(GetProfilerProjectBin(), fileName);
             yield return Path.Combine(GetNukeBuildOutput(), fileName);
         }
 
