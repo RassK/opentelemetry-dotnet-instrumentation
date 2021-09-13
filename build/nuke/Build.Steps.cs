@@ -32,6 +32,7 @@ partial class Build
     [LazyPathExecutable(name: "cmd")] readonly Lazy<Tool> Cmd;
     [LazyPathExecutable(name: "cmake")] readonly Lazy<Tool> CMake;
     [LazyPathExecutable(name: "make")] readonly Lazy<Tool> Make;
+    [LazyPathExecutable(name: "ldd")] readonly Lazy<Tool> Ldd;
 
     IEnumerable<MSBuildTargetPlatform> ArchitecturesForPlatform =>
         Equals(Platform, MSBuildTargetPlatform.x64)
@@ -176,6 +177,11 @@ partial class Build
         .After(CompileManagedTests)
         .Executes(() =>
         {
+            if (IsLinux)
+            {
+                Ldd.Value(TracerHomeDirectory / "OpenTelemetry.ClrProfiler.Native.so");
+            }
+
             Project[] integrationTests = Solution
                 .GetProjects("IntegrationTests.*")
                 .ToArray();
