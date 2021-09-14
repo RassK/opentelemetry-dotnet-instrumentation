@@ -71,6 +71,8 @@ jobs:
     runs-on: macOS-latest
     steps:
       - uses: actions/checkout@v1
+      - name: Downgrade CMake
+        run: ./build/artifacts/downgrade-cmake-macos.sh
       - name: Cache .nuke/temp, ~/.nuget/packages
         uses: actions/cache@v2
         with:
