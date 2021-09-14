@@ -32,6 +32,7 @@ partial class Build
     [LazyPathExecutable(name: "cmd")] readonly Lazy<Tool> Cmd;
     [LazyPathExecutable(name: "cmake")] readonly Lazy<Tool> CMake;
     [LazyPathExecutable(name: "make")] readonly Lazy<Tool> Make;
+    [LazyPathExecutable(name: "ldd")] readonly Lazy<Tool> Ldd;
 
     IEnumerable<MSBuildTargetPlatform> ArchitecturesForPlatform =>
         Equals(Platform, MSBuildTargetPlatform.x64)
@@ -103,6 +104,12 @@ partial class Build
         .After(CompileManagedSrc)
         .Executes(() =>
         {
+            // Always AnyCPU
+            DotNetBuild(x => x
+                .SetProjectFile(Solution.GetProject(Projects.Tests.ClrProfilerManagedLoaderTests))
+                .SetConfiguration(BuildConfiguration)
+                .SetNoRestore(true));
+
             DotNetMSBuild(x => x
                 .SetTargetPath(MsBuildProject)
                 .SetTargetPlatform(Platform)
@@ -174,23 +181,85 @@ partial class Build
         .Produces(BuildDataDirectory / "profiler-logs" / "*")
         .After(BuildTracer)
         .After(CompileManagedTests)
+        .After(PublishMocks)
         .Executes(() =>
         {
-            Project[] integrationTests = Solution
-                .GetProjects("IntegrationTests.*")
-                .ToArray();
+            RunUnitTests();
+            RunIntegrationTests();
+        });
 
-            DotNetTest(config => config
+    Target PublishMocks => _ => _
+        .Unlisted()
+        .After(CompileMocks)
+        .After(CompileManagedTests)
+        .Executes(() =>
+        {
+            // publish ClrProfilerManaged moc
+            var targetFrameworks = IsWin
+                ? new[] { TargetFramework.NET461, TargetFramework.NETCOREAPP3_1 }
+                : new[] { TargetFramework.NETCOREAPP3_1 };
+
+            DotNetPublish(s => s
+                .SetProject(Solution.GetProject(Projects.Mocks.ClrProfilerManagedMock))
                 .SetConfiguration(BuildConfiguration)
-                .SetTargetPlatform(Platform)
-                // TODO: Remove if NetFX works
-                .SetFramework(TargetFramework.NETCOREAPP3_1)
-                .EnableNoRestore()
+                .SetTargetPlatformAnyCPU()
                 .EnableNoBuild()
-                .CombineWith(integrationTests, (s, project) => s
-                    .EnableTrxLogOutput(GetResultsDirectory(project))
-                    .SetProjectFile(project)), degreeOfParallelism: 4);
+                .EnableNoRestore()
+                .CombineWith(targetFrameworks, (p, framework) => p
+                    .SetFramework(framework)
+                    .SetOutput(TestsDirectory / Projects.Tests.ClrProfilerManagedLoaderTests / "bin" / BuildConfiguration / framework / "Profiler" / framework)));
+        });
+
+    Target CompileMocks => _ => _
+        .Unlisted()
+        .Executes(() =>
+        {
+            DotNetBuild(x => x
+                .SetProjectFile(Solution.GetProject(Projects.Mocks.ClrProfilerManagedMock))
+                .SetConfiguration(BuildConfiguration)
+                .SetNoRestore(true)
+            );
         });
 
     private AbsolutePath GetResultsDirectory(Project proj) => BuildDataDirectory / "results" / proj.Name;
+
+    private void RunUnitTests()
+    {
+        Project[] unitTests = new[]
+        {
+                Solution.GetProject(Projects.Tests.ClrProfilerManagedLoaderTests)
+        };
+
+        DotNetTest(config => config
+            .SetConfiguration(BuildConfiguration)
+            .SetTargetPlatformAnyCPU()
+            .EnableNoRestore()
+            .EnableNoBuild()
+            .CombineWith(unitTests, (s, project) => s
+                .EnableTrxLogOutput(GetResultsDirectory(project))
+                .SetProjectFile(project)), degreeOfParallelism: 4);
+    }
+
+    private void RunIntegrationTests()
+    {
+        if (IsLinux)
+        {
+            Ldd.Value(TracerHomeDirectory / "OpenTelemetry.ClrProfiler.Native.so");
+        }
+
+        Project[] integrationTests = Solution
+            .GetProjects("IntegrationTests.*")
+            .ToArray();
+
+        DotNetTest(config => config
+            .SetConfiguration(BuildConfiguration)
+            .SetTargetPlatform(Platform)
+            // TODO: Remove if NetFX works
+            .SetFramework(TargetFramework.NETCOREAPP3_1)
+            .EnableNoRestore()
+            .EnableNoBuild()
+            .CombineWith(integrationTests, (s, project) => s
+                .EnableTrxLogOutput(GetResultsDirectory(project))
+                .SetProjectFile(project)), degreeOfParallelism: 4);
+    }
 }
