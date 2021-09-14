@@ -53,8 +53,7 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - name: Downgrade CMake
-        run: |
-          sudo apt remove cmake && sudo apt install cmake=3.16.3-1ubuntu1
+        run: ./build/artifacts/downgrade-cmake-ubuntu.sh
       - name: Cache .nuke/temp, ~/.nuget/packages
         uses: actions/cache@v2
         with:
