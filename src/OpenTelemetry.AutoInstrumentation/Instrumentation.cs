@@ -19,7 +19,6 @@ using System.Diagnostics.Tracing;
 using System.Threading;
 using OpenTelemetry.AutoInstrumentation.Configuration;
 using OpenTelemetry.AutoInstrumentation.Diagnostics;
-using OpenTelemetry.AutoInstrumentation.Loading;
 using OpenTelemetry.AutoInstrumentation.Logging;
 using OpenTelemetry.Context.Propagation;
 using OpenTelemetry.Metrics;
@@ -41,7 +40,6 @@ public static class Instrumentation
     private static int _firstInitialization = 1;
     private static int _isExiting = 0;
     private static SdkSelfDiagnosticsEventListener _sdkEventListener;
-    private static LazyInstrumentationLoader _lazyInstrumentationLoader = new();
 
     private static TracerProvider _tracerProvider;
     private static MeterProvider _meterProvider;
@@ -102,15 +100,6 @@ public static class Instrumentation
 
             if (TracerSettings.LoadTracerAtStartup)
             {
-                // Setup the instrumentations that have additional setup occuring during AssemblyLoad
-                // -> this should be refactored in a seperate PR
-                // e.g. we could have a static method that returns a collection of initializers
-                //      and TracerSettings.EnabledInstrumentations would be passed as input
-                if (TracerSettings.EnabledInstrumentations.Contains(TracerInstrumentation.AspNet))
-                {
-                    _lazyInstrumentationLoader.Add(new AspNetCoreInitializer());
-                }
-
                 var builder = Sdk
                     .CreateTracerProviderBuilder()
                     .SetResourceBuilder(_resourceBuilder)
@@ -178,7 +167,6 @@ public static class Instrumentation
 
         try
         {
-            _lazyInstrumentationLoader?.Dispose();
             _tracerProvider?.Dispose();
             _meterProvider?.Dispose();
             _sdkEventListener.Dispose();

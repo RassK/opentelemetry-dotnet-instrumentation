@@ -17,6 +17,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using OpenTelemetry.Trace;
 
 namespace OpenTelemetry.AutoInstrumentation.Configuration;
@@ -58,9 +59,10 @@ internal static class EnvironmentConfigurationTracerHelper
         builder.AddAspNetInstrumentation();
 #endif
 
-        // Instrumentation will be added via assembly load detector
-        builder.AddSource("OpenTelemetry.Instrumentation.AspNetCore");
-        builder.AddLegacySource("Microsoft.AspNetCore.Hosting.HttpRequestIn");
+        if (Assembly.GetEntryAssembly().GetReferencedAssemblies().Any(x => x.Name == "Microsoft.AspNetCore"))
+        {
+            builder.AddAspNetCoreInstrumentation();
+        }
 
         return builder;
     }
