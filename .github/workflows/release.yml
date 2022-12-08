@@ -10,13 +10,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - machine: windows-2022
-            artifact-name: windows
-          - machine: ubuntu-20.04
-            artifact-name: linux-glibc
-          - machine: macos-11
-            artifact-name: macos
+        machine: [ windows-2022, ubuntu-20.04, macos-11 ]
     runs-on: ${{ matrix.machine }}
     steps:
       - uses: actions/checkout@v3.1.0
@@ -30,7 +24,7 @@ jobs:
         uses: actions/upload-artifact@v3.1.1
         if: always()
         with:
-          name: opentelemetry-dotnet-instrumentation-${{ matrix.artifact-name }}
+          name: bin-${{ matrix.machine }}
           path: bin/tracer-home
 
   container-build:
@@ -59,7 +53,7 @@ jobs:
       uses: actions/upload-artifact@v3.1.1
       if: always()
       with:
-        name: opentelemetry-dotnet-instrumentation-linux-musl
+        name: bin-${{ matrix.base-image }}
         path: bin/tracer-home
 
   create-release:
@@ -76,16 +70,16 @@ jobs:
           path: .
       - uses: montudor/action-zip@v1
         with:
-          args: zip -qq -r opentelemetry-dotnet-instrumentation-linux-musl.zip opentelemetry-dotnet-instrumentation-linux-musl
+          args: zip -qq -r opentelemetry-dotnet-instrumentation-linux-musl.zip bin-ubuntu-20.04/**
       - uses: montudor/action-zip@v1
         with:
-          args: zip -qq -r opentelemetry-dotnet-instrumentation-linux-glibc.zip opentelemetry-dotnet-instrumentation-linux-glibc
+          args: zip -qq -r opentelemetry-dotnet-instrumentation-linux-glibc.zip bin-alpine/**
       - uses: montudor/action-zip@v1
         with:
-          args: zip -qq -r opentelemetry-dotnet-instrumentation-windows.zip opentelemetry-dotnet-instrumentation-windows
+          args: zip -qq -r opentelemetry-dotnet-instrumentation-windows.zip bin-windows-2022/**
       - uses: montudor/action-zip@v1
         with:
-          args: zip -qq -r opentelemetry-dotnet-instrumentation-macos.zip opentelemetry-dotnet-instrumentation-macos
+          args: zip -qq -r opentelemetry-dotnet-instrumentation-macos.zip bin-macos-11/**
       - name: Extract Version from Tag
         id: get_version
         run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\/v}
