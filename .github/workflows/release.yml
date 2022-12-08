@@ -70,16 +70,16 @@ jobs:
           path: .
       - uses: montudor/action-zip@v1
         with:
-          args: zip -qq -r opentelemetry-dotnet-instrumentation-linux-musl.zip bin-ubuntu-20.04/**
+          args: cd bin-alpine ; zip -qq -r ../opentelemetry-dotnet-instrumentation-linux-musl.zip . * ; cd ..
       - uses: montudor/action-zip@v1
         with:
-          args: zip -qq -r opentelemetry-dotnet-instrumentation-linux-glibc.zip bin-alpine/**
+          args: cd bin-ubuntu-20.04 ; zip -qq -r ../opentelemetry-dotnet-instrumentation-linux-glibc.zip . * ; cd ..
       - uses: montudor/action-zip@v1
         with:
-          args: zip -qq -r opentelemetry-dotnet-instrumentation-windows.zip bin-windows-2022/**
+          args: cd bin-windows-2022 ; zip -qq -r ../opentelemetry-dotnet-instrumentation-windows.zip . * ; cd ..
       - uses: montudor/action-zip@v1
         with:
-          args: zip -qq -r opentelemetry-dotnet-instrumentation-macos.zip bin-macos-11/**
+          args: cd bin-macos-11 ; zip -qq -r ../opentelemetry-dotnet-instrumentation-macos.zip . * ; cd ..
       - name: Extract Version from Tag
         id: get_version
         run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\/v}
