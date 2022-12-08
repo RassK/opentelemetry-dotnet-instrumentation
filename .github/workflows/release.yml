@@ -68,18 +68,12 @@ jobs:
       - uses: actions/download-artifact@v3.0.1
         with:
           path: .
-      - uses: montudor/action-zip@v1
-        with:
-          args: cd bin-alpine ; zip -qq -r ../opentelemetry-dotnet-instrumentation-linux-musl.zip . * ; cd ..
-      - uses: montudor/action-zip@v1
-        with:
-          args: cd bin-ubuntu-20.04 ; zip -qq -r ../opentelemetry-dotnet-instrumentation-linux-glibc.zip . * ; cd ..
-      - uses: montudor/action-zip@v1
-        with:
-          args: cd bin-windows-2022 ; zip -qq -r ../opentelemetry-dotnet-instrumentation-windows.zip . * ; cd ..
-      - uses: montudor/action-zip@v1
-        with:
-          args: cd bin-macos-11 ; zip -qq -r ../opentelemetry-dotnet-instrumentation-macos.zip . * ; cd ..
+      - name: Install zip
+        uses: montudor/action-zip@v1
+      - run: cd bin-alpine ; zip -qq -r ../opentelemetry-dotnet-instrumentation-linux-musl.zip . * ; cd ..
+      - run: cd bin-ubuntu-20.04 ; zip -qq -r ../opentelemetry-dotnet-instrumentation-linux-glibc.zip . * ; cd ..
+      - run: cd bin-windows-2022 ; zip -qq -r ../opentelemetry-dotnet-instrumentation-windows.zip . * ; cd ..
+      - run: cd bin-macos-11 ; zip -qq -r ../opentelemetry-dotnet-instrumentation-macos.zip . * ; cd ..
       - name: Extract Version from Tag
         id: get_version
         run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\/v}
