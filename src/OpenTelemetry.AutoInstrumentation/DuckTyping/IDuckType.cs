@@ -14,14 +14,17 @@
 // limitations under the License.
 // </copyright>
 
+#nullable enable
+
 using System;
+using System.ComponentModel;
 
 namespace OpenTelemetry.AutoInstrumentation.DuckTyping;
 
 /// <summary>
 /// Duck type interface
 /// </summary>
-public interface IDuckType
+internal interface IDuckType
 {
     /// <summary>
     /// Gets instance
@@ -32,4 +35,10 @@ public interface IDuckType
     /// Gets instance Type
     /// </summary>
     Type Type { get; }
+
+    /// <summary>
+    /// Calls ToString() on the instance
+    /// </summary>
+    /// <returns>ToString result</returns>
+    string ToString();
 }

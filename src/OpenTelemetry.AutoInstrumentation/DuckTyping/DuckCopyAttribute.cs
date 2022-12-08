@@ -14,6 +14,8 @@
 // limitations under the License.
 // </copyright>
 
+#nullable enable
+
 using System;
 
 namespace OpenTelemetry.AutoInstrumentation.DuckTyping;
@@ -22,6 +24,6 @@ namespace OpenTelemetry.AutoInstrumentation.DuckTyping;
 /// Duck copy struct attribute
 /// </summary>
 [AttributeUsage(AttributeTargets.Struct, AllowMultiple = false)]
-public class DuckCopyAttribute : Attribute
+internal class DuckCopyAttribute : Attribute
 {
 }

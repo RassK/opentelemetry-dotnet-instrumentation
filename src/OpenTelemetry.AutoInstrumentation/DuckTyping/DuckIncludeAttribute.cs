@@ -14,6 +14,8 @@
 // limitations under the License.
 // </copyright>
 
+#nullable enable
+
 using System;
 
 namespace OpenTelemetry.AutoInstrumentation.DuckTyping;
@@ -22,6 +24,6 @@ namespace OpenTelemetry.AutoInstrumentation.DuckTyping;
 /// Use to include a member that would normally be ignored
 /// </summary>
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
-public class DuckIncludeAttribute : Attribute
+internal class DuckIncludeAttribute : Attribute
 {
 }

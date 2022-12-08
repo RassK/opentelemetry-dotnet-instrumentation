@@ -2,6 +2,7 @@ AWSSDK
 bitness
 bytecode
 cmake
+Codespaces
 coreutils
 Couchbase
 distro
@@ -25,6 +26,7 @@ proto
 protobuf
 protos
 Serilog
+sqlserver
 TMPDIR
 tracesexporter
 unencrypted
