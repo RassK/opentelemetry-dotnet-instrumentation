@@ -299,6 +299,9 @@ src/OpenTelemetry.AutoInstrumentation.Native/Makefile
 src/OpenTelemetry.AutoInstrumentation.Native/CMakeCache.txt
 src/OpenTelemetry.AutoInstrumentation.Native/cmake_install.cmake
 
+# source generated files
+*.generated.cs
+
 # exception for native profiler dependencies
 !src/OpenTelemetry.AutoInstrumentation.Native/lib/**
 

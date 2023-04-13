@@ -16,12 +16,11 @@
 
 using System.Diagnostics;
 using System.Reflection;
-using System.Text.Json;
 using OpenTelemetry.AutoInstrumentation.Logging;
 
 namespace OpenTelemetry.AutoInstrumentation.RulesEngine;
 
-internal class InstrumentationAssemblyRule : Rule
+internal partial class InstrumentationAssemblyRule : Rule
 {
     private static readonly IOtelLogger Logger = OtelLogging.GetLogger("StartupHook");
 
@@ -37,9 +36,7 @@ internal class InstrumentationAssemblyRule : Rule
 
         try
         {
-            var ruleEngineFileLocation = Path.Combine(StartupHook.LoaderAssemblyLocation ?? string.Empty, "ruleEngine.json");
-            var ruleEngineContent = File.ReadAllText(ruleEngineFileLocation);
-            var ruleFileInfoList = JsonSerializer.Deserialize<List<RuleFileInfo>>(ruleEngineContent);
+            var ruleFileInfoList = RuleEngineMetadata.GetFileInfos();
             var entryAssembly = Assembly.GetEntryAssembly();
             var referencedAssemblies = entryAssembly?.GetReferencedAssemblies();
 
@@ -79,12 +76,5 @@ internal class InstrumentationAssemblyRule : Rule
         }
 
         return true;
-    }
-
-    private class RuleFileInfo
-    {
-        public string FileName { get; set; } = string.Empty;
-
-        public string FileVersion { get; set; } = string.Empty;
     }
 }

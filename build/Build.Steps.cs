@@ -1,7 +1,7 @@
 using System.Diagnostics;
-using System.Text.Json;
 using System.Text.Json.Nodes;
 using Extensions;
+using Generators;
 using Nuke.Common;
 using Nuke.Common.IO;
 using Nuke.Common.ProjectModel;
@@ -116,6 +116,7 @@ partial class Build
 
     Target CompileManagedSrc => _ => _
         .Description("Compiles the managed code in the src directory")
+        .After(GenerateRuleEngineMetadata)
         .After(GenerateNetFxTransientDependencies)
         .After(CreateRequiredDirectories)
         .After(Restore)
@@ -493,13 +494,12 @@ partial class Build
             AdditionalDepsDirectory.GlobDirectories("**/runtimes").ForEach(DeleteDirectory);
         });
 
-    Target PublishRuleEngineJson => _ => _
-        .After(PublishManagedProfiler)
+    Target GenerateRuleEngineMetadata => _ => _
         .Description("Publishes a file with assembly name and version for rule engine validation.")
         .Executes(() =>
         {
             var netPath = TracerHomeDirectory / "net";
-            var fileInfoList = new List<object>();
+            var fileInfoList = new List<(string FileName, string FileVersion)>();
             var files = Directory.GetFiles(netPath);
 
             foreach (string file in files)
@@ -509,16 +509,14 @@ partial class Build
 
                 if (fileName.StartsWith("OpenTelemetry.") && !fileName.StartsWith("OpenTelemetry.Api") && !fileName.StartsWith("OpenTelemetry.AutoInstrumentation"))
                 {
-                    fileInfoList.Add(new
-                    {
-                        FileName = fileName,
-                        FileVersion = fileVersion
-                    });
+                    fileInfoList.Add((fileName, fileVersion));
                 }
             }
 
-            string jsonContent = JsonSerializer.Serialize(fileInfoList);
-            File.WriteAllText(Path.Combine(netPath, "ruleEngine.json"), jsonContent);
+            var startupHookProject = Solution.GetProject(Projects.AutoInstrumentationStartupHook);
+            var ruleEngineMetadata = RuleEngineMetadataGenerator.Generate(fileInfoList);
+
+            File.WriteAllText(Path.Combine(startupHookProject.Directory, "RulesEngine", "RuleEngineMetadata.generated.cs"), ruleEngineMetadata);
         });
 
     Target InstallDocumentationTools => _ => _

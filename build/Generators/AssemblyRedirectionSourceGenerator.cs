@@ -2,6 +2,8 @@ using System.Text;
 using Mono.Cecil;
 using Serilog;
 
+namespace Generators;
+
 public class AssemblyRedirectionSourceGenerator
 {
     public static void Generate(string assembliesFolderPath, string generatedFilePath)

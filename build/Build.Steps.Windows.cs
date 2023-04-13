@@ -1,4 +1,5 @@
 using DependencyListGenerator;
+using Generators;
 using Nuke.Common;
 using Nuke.Common.IO;
 using Nuke.Common.ProjectModel;
