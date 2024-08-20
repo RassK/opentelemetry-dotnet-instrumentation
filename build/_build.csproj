@@ -17,6 +17,7 @@
     <PackageReference Include="Mono.Cecil" />
     <PackageReference Include="Nuke.Common" />
     <PackageReference Include="Nuget.CommandLine" ExcludeAssets="all" />
+    <PackageReference Include="System.Text.Json" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="DotNet.ReproducibleBuilds">
