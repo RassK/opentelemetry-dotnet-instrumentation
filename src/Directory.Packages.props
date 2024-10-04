@@ -7,7 +7,7 @@
   </ItemGroup>
   <!-- Versions from OpenTelemetry.AutoInstrumentation.BuildTasks.csproj -->
   <ItemGroup>
-    <PackageVersion Include="Microsoft.Build.Utilities.Core" Version="15.9.20" />
+    <PackageVersion Include="Microsoft.Build.Utilities.Core" Version="17.11.4" />
     <PackageVersion Include="NuGet.Versioning" Version="$(NuGetVersioningVersion)" />
   </ItemGroup>
   <!-- Versions from OpenTelemetry.AutoInstrumentation.csproj -->
@@ -58,7 +58,7 @@
     <PackageVersion Include="System.Security.Cryptography.Encoding" Version="4.3.0" />
     <PackageVersion Include="System.Security.Cryptography.Primitives" Version="4.3.0" />
     <PackageVersion Include="System.Security.Cryptography.X509Certificates" Version="4.3.0" />
-    <PackageVersion Include="System.Text.Encoding.CodePages" Version="5.0.0" />
+    <PackageVersion Include="System.Text.Encoding.CodePages" Version="7.0.0" />
     <PackageVersion Include="System.Windows.Extensions" Version="4.7.0" />
     <PackageVersion Include="ZstdSharp.Port" Version="0.7.3" />
   </ItemGroup>
