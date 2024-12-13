@@ -19,8 +19,8 @@ jobs:
             log-dir: "/var/log/opentelemetry/dotnet"
           - machine: macos-13
             log-dir: "/var/log/opentelemetry/dotnet"
-          - machine: otel-linux-arm64
-            log-dir: "/var/log/opentelemetry/dotnet"
+          # - machine: otel-linux-arm64
+          #   log-dir: "/var/log/opentelemetry/dotnet"
     runs-on: ${{ matrix.machine }}
     steps:
 

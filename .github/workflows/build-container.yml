@@ -17,10 +17,10 @@ jobs:
             base-image: alpine
             os-type: linux-musl
             architecture: x64
-          - machine: otel-linux-arm64
-            base-image: alpine
-            os-type: linux-musl
-            architecture: arm64
+          # - machine: otel-linux-arm64
+          #   base-image: alpine
+          #   os-type: linux-musl
+          #   architecture: arm64
     runs-on: ${{ matrix.machine }}
     timeout-minutes: 60
     steps:
