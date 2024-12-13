@@ -1,7 +1,8 @@
 // Copyright The OpenTelemetry Authors
 // SPDX-License-Identifier: Apache-2.0
 
-#if NET
+// TODO: Temporarily disable logging integration.
+#if NET_DISABLED
 using OpenTelemetry.AutoInstrumentation.CallTarget;
 
 namespace OpenTelemetry.AutoInstrumentation.Instrumentations.Logger;
