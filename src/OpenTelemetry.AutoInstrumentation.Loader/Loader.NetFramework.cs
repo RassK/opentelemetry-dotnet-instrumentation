@@ -24,6 +24,11 @@ internal partial class Loader
         return Assembly.Load(assemblyName);
     }
 
+    private static Assembly LoadSharedAssembly(string assemblyName)
+    {
+        return Assembly.Load(assemblyName);
+    }
+
     private static Assembly? AssemblyResolve_ManagedProfilerDependencies(object sender, ResolveEventArgs args)
     {
         var assemblyName = new AssemblyName(args.Name).Name;

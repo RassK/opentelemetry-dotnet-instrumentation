@@ -46,31 +46,60 @@ internal partial class Loader
 
         try
         {
-            var assembly = LoadMainAssembly("OpenTelemetry.AutoInstrumentation");
-            if (assembly == null)
-            {
-                throw new FileNotFoundException("The assembly OpenTelemetry.AutoInstrumentation could not be loaded");
-            }
-
-            var type = assembly.GetType("OpenTelemetry.AutoInstrumentation.Instrumentation", throwOnError: false);
-            if (type == null)
-            {
-                throw new TypeLoadException("The type OpenTelemetry.AutoInstrumentation.Instrumentation could not be loaded");
-            }
-
-            var method = type.GetRuntimeMethod("Initialize", Type.EmptyTypes);
-            if (method == null)
-            {
-                throw new MissingMethodException("The method OpenTelemetry.AutoInstrumentation.Instrumentation.Initialize could not be loaded");
-            }
-
-            method.Invoke(obj: null, parameters: null);
+            LoadMainModule();
+            LoadByteCodeModule();
         }
         catch (Exception ex)
         {
             Logger.Error(ex, "Error when loading managed assemblies. {0}", ex.Message);
             throw;
         }
+    }
+
+    private static void LoadMainModule()
+    {
+        var assembly = LoadMainAssembly("OpenTelemetry.AutoInstrumentation");
+        if (assembly == null)
+        {
+            throw new FileNotFoundException("The assembly OpenTelemetry.AutoInstrumentation could not be loaded");
+        }
+
+        var type = assembly.GetType("OpenTelemetry.AutoInstrumentation.Instrumentation", throwOnError: false);
+        if (type == null)
+        {
+            throw new TypeLoadException("The type OpenTelemetry.AutoInstrumentation.Instrumentation could not be loaded");
+        }
+
+        var method = type.GetRuntimeMethod("Initialize", Type.EmptyTypes);
+        if (method == null)
+        {
+            throw new MissingMethodException("The method OpenTelemetry.AutoInstrumentation.Instrumentation.Initialize could not be loaded");
+        }
+
+        method.Invoke(obj: null, parameters: null);
+    }
+
+    private static void LoadByteCodeModule()
+    {
+        var assembly = LoadSharedAssembly("OpenTelemetry.AutoInstrumentation.ByteCode");
+        if (assembly == null)
+        {
+            throw new FileNotFoundException("The assembly OpenTelemetry.AutoInstrumentation.ByteCode could not be loaded");
+        }
+
+        var type = assembly.GetType("OpenTelemetry.AutoInstrumentation.ByteCode.Instrumentation", throwOnError: false);
+        if (type == null)
+        {
+            throw new TypeLoadException("The type OpenTelemetry.AutoInstrumentation.ByteCode.Instrumentation could not be loaded");
+        }
+
+        var method = type.GetRuntimeMethod("Initialize", Type.EmptyTypes);
+        if (method == null)
+        {
+            throw new MissingMethodException("The method OpenTelemetry.AutoInstrumentation.ByteCode.Instrumentation.Initialize could not be loaded");
+        }
+
+        method.Invoke(obj: null, parameters: null);
     }
 
     private static string? ReadEnvironmentVariable(string key)

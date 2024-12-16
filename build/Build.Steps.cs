@@ -279,6 +279,16 @@ partial class Build
                     .SetFramework(framework)
                     .SetOutput(TracerHomeDirectory / MapToFolderOutput(framework))));
 
+            DotNetPublish(s => s
+                .SetProject(Solution.GetProjectByName(Projects.AutoInstrumentationByteCode))
+                .SetConfiguration(BuildConfiguration)
+                .SetTargetPlatformAnyCPU()
+                .EnableNoBuild()
+                .SetNoRestore(NoRestore)
+                .CombineWith(targetFrameworks, (p, framework) => p
+                    .SetFramework(framework)
+                    .SetOutput(TracerHomeDirectory / MapToFolderOutput(framework))));
+
             // StartupHook is supported starting .Net Core 3.1.
             // We need to emit AutoInstrumentationStartupHook for .Net Core 3.1 target framework
             // to avoid application crash with .Net Core 3.1 and .NET 5.0 apps.
@@ -333,7 +343,7 @@ partial class Build
         var additionalStoreFolder = TracerHomeDirectory / "store";
 
         var netLibraries = netFolder.GlobFiles("**/*.dll");
-        var netLibrariesByName = netLibraries.ToDictionary(x => x.Name);
+        var netLibrariesByName = netLibraries.DistinctBy(x => x.Name).ToDictionary(x => x.Name);
         var additionalStoreLibraries = additionalStoreFolder.GlobFiles("**/*.dll");
 
         foreach (var additionalStoreLibrary in additionalStoreLibraries)

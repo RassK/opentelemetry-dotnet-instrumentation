@@ -30,6 +30,11 @@ internal partial class Loader
         return OTelLoadContext.LoadFromAssemblyName(new AssemblyName(assemblyName));
     }
 
+    private static Assembly LoadSharedAssembly(string assemblyName)
+    {
+        return AssemblyLoadContext.Default.LoadFromAssemblyName(new AssemblyName(assemblyName));
+    }
+
     private static string[]? GetStoreFiles()
     {
         try

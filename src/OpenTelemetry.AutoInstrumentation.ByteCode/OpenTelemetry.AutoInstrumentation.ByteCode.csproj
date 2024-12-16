@@ -1,0 +1,90 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <Import Project="..\CommonExcludedAssets.props" />
+
+  <PropertyGroup>
+    <PackageId>OpenTelemetry.AutoInstrumentation.Runtime.ManagedByteCode</PackageId>
+    <Description>Managed components used by the OpenTelemetry.AutoInstrumentation project.</Description>
+    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+    <GeneratedFolder>Generated</GeneratedFolder>
+    <CompilerGeneratedFilesOutputPath>$(GeneratedFolder)\$(TargetFramework)</CompilerGeneratedFilesOutputPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="OpenTelemetry.Api" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.Wcf" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net462' ">
+    <Reference Include="System.ServiceModel" ExcludeAssets="all" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Web" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.AspNet" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SourceGenerators\SourceGenerators.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
+    <Compile Remove="$(GeneratedFolder)/*/**/*.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\OpenTelemetry.AutoInstrumentation\AutoInstrumentationEventSource.cs" Link="AutoInstrumentationEventSource.cs" />
+    <Compile Include="..\OpenTelemetry.AutoInstrumentation\AutoInstrumentationEventSource.Name.cs" Link="AutoInstrumentationEventSource.Name.cs" />
+    <Compile Include="..\OpenTelemetry.AutoInstrumentation\Configurations\Configuration.cs" Link="Configurations\Configuration.cs" />
+    <Compile Include="..\OpenTelemetry.AutoInstrumentation\Configurations\ConfigurationExtensions.cs" Link="Configurations\ConfigurationExtensions.cs" />
+    <Compile Include="..\OpenTelemetry.AutoInstrumentation\Configurations\ConfigurationKeys.cs" Link="Configurations\ConfigurationKeys.cs" />
+    <Compile Include="..\OpenTelemetry.AutoInstrumentation\Configurations\ConfigurationKeys.FailFast.cs" Link="Configurations\ConfigurationKeys.FailFast.cs" />
+    <Compile Include="..\OpenTelemetry.AutoInstrumentation\Configurations\EnvironmentConfigurationSource.cs" Link="Configurations\EnvironmentConfigurationSource.cs" />
+    <Compile Include="..\OpenTelemetry.AutoInstrumentation\Configurations\FailFastSettings.cs" Link="Configurations\FailFastSettings.cs" />
+    <Compile Include="..\OpenTelemetry.AutoInstrumentation\Configurations\IConfigurationSource.cs" Link="Configurations\IConfigurationSource.cs" />
+    <Compile Include="..\OpenTelemetry.AutoInstrumentation\Configurations\LogInstrumentation.cs" Link="Configurations\LogInstrumentation.cs" />
+    <Compile Include="..\OpenTelemetry.AutoInstrumentation\Configurations\MetricInstrumentation.cs" Link="Configurations\MetricInstrumentation.cs" />
+    <Compile Include="..\OpenTelemetry.AutoInstrumentation\Configurations\Settings.cs" Link="Configurations\Settings.cs" />
+    <Compile Include="..\OpenTelemetry.AutoInstrumentation\Configurations\StringConfigurationSource.cs" Link="Configurations\StringConfigurationSource.cs" />
+    <Compile Include="..\OpenTelemetry.AutoInstrumentation\Configurations\TracerInstrumentation.cs" Link="Configurations\TracerInstrumentation.cs" />
+    <Compile Include="..\OpenTelemetry.AutoInstrumentation\Constants.cs" Link="Constants.cs" />
+    <Compile Include="..\OpenTelemetry.AutoInstrumentation\FrameworkDescription.cs" Link="FrameworkDescription.cs" />
+    <Compile Include="..\OpenTelemetry.AutoInstrumentation\FrameworkDescription.NetCore.cs" Link="FrameworkDescription.NetCore.cs" />
+    <Compile Include="..\OpenTelemetry.AutoInstrumentation\FrameworkDescription.NetFramework.cs" Link="FrameworkDescription.NetFramework.cs" />
+    <Compile Include="..\OpenTelemetry.AutoInstrumentation\Loading\ILifespanManager.cs" Link="Loading\ILifespanManager.cs" />
+    <Compile Include="..\OpenTelemetry.AutoInstrumentation\Loading\InstrumentationLifespanManager.cs" Link="Loading\InstrumentationLifespanManager.cs" />
+    <Compile Include="..\OpenTelemetry.AutoInstrumentation\Logging\ConsoleSink.cs" Link="Logging\ConsoleSink.cs" />
+    <Compile Include="..\OpenTelemetry.AutoInstrumentation\Logging\FileSink.cs" Link="Logging\FileSink.cs" />
+    <Compile Include="..\OpenTelemetry.AutoInstrumentation\Logging\InternalLogger.cs" Link="Logging\InternalLogger.cs" />
+    <Compile Include="..\OpenTelemetry.AutoInstrumentation\Logging\IOtelLogger.cs" Link="Logging\IOtelLogger.cs" />
+    <Compile Include="..\OpenTelemetry.AutoInstrumentation\Logging\ISink.cs" Link="Logging\ISink.cs" />
+    <Compile Include="..\OpenTelemetry.AutoInstrumentation\Logging\LogLevel.cs" Link="Logging\LogLevel.cs" />
+    <Compile Include="..\OpenTelemetry.AutoInstrumentation\Logging\LogSink.cs" Link="Logging\LogSink.cs" />
+    <Compile Include="..\OpenTelemetry.AutoInstrumentation\Logging\NoopLogger.cs" Link="Logging\NoopLogger.cs" />
+    <Compile Include="..\OpenTelemetry.AutoInstrumentation\Logging\NoopSink.cs" Link="Logging\NoopSink.cs" />
+    <Compile Include="..\OpenTelemetry.AutoInstrumentation\Logging\OtelLogging.cs" Link="Logging\OtelLogging.cs" />
+    <Compile Include="..\OpenTelemetry.AutoInstrumentation\Logging\PathRoller.cs" Link="Logging\PathRoller.cs" />
+    <Compile Include="..\OpenTelemetry.AutoInstrumentation\Logging\RollingFileSink.cs" Link="Logging\RollingFileSink.cs" />
+    <Compile Include="..\OpenTelemetry.AutoInstrumentation\Logging\RollingInterval.cs" Link="Logging\RollingInterval.cs" />
+    <Compile Include="..\OpenTelemetry.AutoInstrumentation\Logging\RollingIntervalExtensions.cs" Link="Logging\RollingIntervalExtensions.cs" />
+    <Compile Include="..\OpenTelemetry.AutoInstrumentation\Logging\RollingLogFile.cs" Link="Logging\RollingLogFile.cs" />
+    <Compile Include="..\OpenTelemetry.AutoInstrumentation\Logging\WriteCountingStream.cs" Link="Logging\WriteCountingStream.cs" />
+    <Compile Include="..\OpenTelemetry.AutoInstrumentation\Tagging\InstrumentationTags.cs" Link="Tagging\InstrumentationTags.cs" />
+    <Compile Include="..\OpenTelemetry.AutoInstrumentation\Tagging\IProperty.cs" Link="Tagging\IProperty.cs" />
+    <Compile Include="..\OpenTelemetry.AutoInstrumentation\Tagging\ITags.cs" Link="Tagging\ITags.cs" />
+    <Compile Include="..\OpenTelemetry.AutoInstrumentation\Tagging\Property.cs" Link="Tagging\Property.cs" />
+    <Compile Include="..\OpenTelemetry.AutoInstrumentation\Tagging\Tags.cs" Link="Tagging\Tags.cs" />
+    <Compile Include="..\OpenTelemetry.AutoInstrumentation\Tagging\TagsList.cs" Link="Tagging\TagsList.cs" />
+    <Compile Include="..\OpenTelemetry.AutoInstrumentation\Util\ActivityHelper.cs" Link="Util\ActivityHelper.cs" />
+    <Compile Include="..\OpenTelemetry.AutoInstrumentation\Util\ArrayHelper.cs" Link="Util\ArrayHelper.cs" />
+    <Compile Include="..\OpenTelemetry.AutoInstrumentation\Util\System.Diagnostics.CodeAnalysis.Attributes.cs" Link="Util\System.Diagnostics.CodeAnalysis.Attributes.cs" />
+    <Compile Include="..\OpenTelemetry.AutoInstrumentation\Util\ThrowHelper.cs" Link="Util\ThrowHelper.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Loading\" />
+    <Folder Include="Logging\" />
+    <Folder Include="Tagging\" />
+    <Folder Include="Util\" />
+  </ItemGroup>
+
+  <ItemGroup Label="Dependencies" Condition=" '$(TargetFramework)' == 'net462' ">
+    <PackageReference Include="System.Diagnostics.DiagnosticSource" />
+    <PackageReference Include="System.ValueTuple" />
+  </ItemGroup>
+
+</Project>

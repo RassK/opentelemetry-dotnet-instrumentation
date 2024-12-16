@@ -3,7 +3,6 @@
 
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
-using OpenTelemetry.Logs;
 
 namespace OpenTelemetry.AutoInstrumentation.Configurations;
 
@@ -213,7 +212,7 @@ internal partial class ConfigurationKeys
 
         /// <summary>
         /// Configuration key for whether or not formatted log message
-        /// should be included on generated <see cref="LogRecord"/>s.
+        /// should be included on generated LogRecords.
         /// </summary>
         public const string IncludeFormattedMessage = "OTEL_DOTNET_AUTO_LOGS_INCLUDE_FORMATTED_MESSAGE";
 

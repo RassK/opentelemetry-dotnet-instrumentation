@@ -67,19 +67,19 @@ const WSTRING mscorlib_assemblyName = WStr("mscorlib");
 const WSTRING system_private_corelib_assemblyName = WStr("System.Private.CoreLib");
 const WSTRING opentelemetry_autoinstrumentation_loader_assemblyName = WStr("OpenTelemetry.AutoInstrumentation.Loader");
 
-const WSTRING managed_profiler_name = WStr("OpenTelemetry.AutoInstrumentation");
+const WSTRING managed_profiler_name = WStr("OpenTelemetry.AutoInstrumentation.ByteCode");
 
 #ifdef _WIN32
-const WSTRING windows_nativemethods_type = WStr("OpenTelemetry.AutoInstrumentation.NativeMethods+Windows");
+const WSTRING windows_nativemethods_type = WStr("OpenTelemetry.AutoInstrumentation.ByteCode.NativeMethods+Windows");
 #else
-const WSTRING nonwindows_nativemethods_type = WStr("OpenTelemetry.AutoInstrumentation.NativeMethods+NonWindows");
+const WSTRING nonwindows_nativemethods_type = WStr("OpenTelemetry.AutoInstrumentation.ByteCode.NativeMethods+NonWindows");
 #endif // _WIN32
 
 const WSTRING managed_profiler_full_assembly_version =
-    WStr("OpenTelemetry.AutoInstrumentation, Version=") + ToWSTRING(ASSEMBLY_VERSION) + WStr(", Culture=neutral, PublicKeyToken=null");
+    WStr("OpenTelemetry.AutoInstrumentation.ByteCode, Version=") + ToWSTRING(ASSEMBLY_VERSION) + WStr(", Culture=neutral, PublicKeyToken=null");
 
 const WSTRING managed_profiler_full_assembly_version_strong_name =
-    WStr("OpenTelemetry.AutoInstrumentation, Version=") + ToWSTRING(ASSEMBLY_VERSION) + WStr(", Culture=neutral, PublicKeyToken=c0db600a13f60b51");
+    WStr("OpenTelemetry.AutoInstrumentation.ByteCode, Version=") + ToWSTRING(ASSEMBLY_VERSION) + WStr(", Culture=neutral, PublicKeyToken=c0db600a13f60b51");
 
 } // namespace trace
 
