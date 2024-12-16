@@ -82,6 +82,11 @@ internal partial class Loader
 
         var path = Path.Combine(ManagedProfilerDirectory, $"{assemblyName.Name}.dll");
 
+        if (assemblyName.Name == "OpenTelemetry.AutoInstrumentation.ByteCode")
+        {
+            return AssemblyLoadContext.Default.LoadFromAssemblyPath(path);
+        }
+
         // Only load the main profiler into the default Assembly Load Context.
         // If OpenTelemetry.AutoInstrumentation or other libraries are provided by the NuGet package their loads are handled in the following two ways.
         // 1) The AssemblyVersion is greater than or equal to the version used by OpenTelemetry.AutoInstrumentation, the assembly

@@ -452,7 +452,18 @@ partial class Build
             }
 
             DotNetPublish(s => s
-                .SetProject(Solution.GetTestMock())
+                .SetProject(Solution.GetMainModuleTestMock())
+                .SetConfiguration(BuildConfiguration)
+                .SetTargetPlatformAnyCPU()
+                .EnableNoBuild()
+                .SetNoRestore(NoRestore)
+                .CombineWith(targetFrameworks, (p, framework) => p
+                    .SetFramework(framework)
+                    .SetOutput(TestsDirectory / Projects.Tests.AutoInstrumentationLoaderTests / "bin" / BuildConfiguration / "Profiler" / framework)));
+
+
+            DotNetPublish(s => s
+                .SetProject(Solution.GetByteCodeModuleTestMock())
                 .SetConfiguration(BuildConfiguration)
                 .SetTargetPlatformAnyCPU()
                 .EnableNoBuild()
@@ -468,6 +479,14 @@ partial class Build
         {
             DotNetBuild(x => x
                 .SetProjectFile(Solution.GetProjectByName(Projects.Mocks.AutoInstrumentationMock))
+                .SetConfiguration(BuildConfiguration)
+                .SetNoRestore(NoRestore)
+                .When(_ => TestTargetFramework != TargetFramework.NOT_SPECIFIED,
+                    s => s.SetFramework(TestTargetFramework))
+            );
+
+            DotNetBuild(x => x
+                .SetProjectFile(Solution.GetProjectByName(Projects.Mocks.AutoInstrumentationByteCodeMock))
                 .SetConfiguration(BuildConfiguration)
                 .SetNoRestore(NoRestore)
                 .When(_ => TestTargetFramework != TargetFramework.NOT_SPECIFIED,

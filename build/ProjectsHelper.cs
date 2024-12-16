@@ -81,9 +81,14 @@ public static class ProjectsHelper
             .Where(p => TestNuGetPackagesApps.Contains(p.Directory));
     }
 
-    public static Project GetTestMock(this Solution solution)
+    public static Project GetMainModuleTestMock(this Solution solution)
     {
         return solution.GetProjectByName(Projects.Mocks.AutoInstrumentationMock);
+    }
+
+    public static Project GetByteCodeModuleTestMock(this Solution solution)
+    {
+        return solution.GetProjectByName(Projects.Mocks.AutoInstrumentationByteCodeMock);
     }
 
     public static Project GetContinuousProfilerNativeDep(this Solution solution)
@@ -116,7 +121,7 @@ public static class ProjectsHelper
         return solution.GetManagedSrcProjects()
             .Concat(solution.GetManagedTestProjects())
             .Concat(solution.GetCrossPlatformTestApplications())
-            .Concat(new[] { solution.GetTestMock() });
+            .Concat(new[] { solution.GetMainModuleTestMock() });
     }
 
     public static IEnumerable<Project> GetNativeProjects(this Solution solution)

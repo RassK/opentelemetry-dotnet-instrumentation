@@ -11,6 +11,7 @@ public static class Projects
     public static class Mocks
     {
         public const string AutoInstrumentationMock = "OpenTelemetry.AutoInstrumentation.Mock";
+        public const string AutoInstrumentationByteCodeMock = "OpenTelemetry.AutoInstrumentation.ByteCode.Mock";
     }
 
     public static class Tests
