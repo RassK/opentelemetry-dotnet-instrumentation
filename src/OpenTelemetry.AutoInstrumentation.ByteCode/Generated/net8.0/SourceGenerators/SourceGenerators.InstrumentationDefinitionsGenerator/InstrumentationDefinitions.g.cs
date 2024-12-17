@@ -17,7 +17,7 @@ internal static partial class InstrumentationDefinitions
 {
     private static NativeCallTargetDefinition[] GetDefinitionsArray()
     {
-        var nativeCallTargetDefinitions = new List<NativeCallTargetDefinition>(35);
+        var nativeCallTargetDefinitions = new List<NativeCallTargetDefinition>(37);
         // Traces
         var tracerSettings = Instrumentation.TracerSettings.Value;
         if (tracerSettings.TracesEnabled)
@@ -84,6 +84,18 @@ internal static partial class InstrumentationDefinitions
                 nativeCallTargetDefinitions.Add(new("System.ServiceModel.Primitives", "System.ServiceModel.ChannelFactory", "InitializeEndpoint", new[] {"System.Void", "System.String", "System.ServiceModel.EndpointAddress"}, 6, 0, 0, 8, 65535, 65535, AssemblyFullName, "OpenTelemetry.AutoInstrumentation.ByteCode.Instrumentations.Wcf.Client.WcfClientIntegration"));
                 nativeCallTargetDefinitions.Add(new("System.ServiceModel.Primitives", "System.ServiceModel.ChannelFactory", "InitializeEndpoint", new[] {"System.Void", "System.ServiceModel.Description.ServiceEndpoint"}, 6, 0, 0, 8, 65535, 65535, AssemblyFullName, "OpenTelemetry.AutoInstrumentation.ByteCode.Instrumentations.Wcf.Client.WcfClientIntegration"));
                 nativeCallTargetDefinitions.Add(new("System.ServiceModel.Primitives", "System.ServiceModel.ChannelFactory", "InitializeEndpoint", new[] {"System.Void", "System.ServiceModel.Channels.Binding", "System.ServiceModel.EndpointAddress"}, 6, 0, 0, 8, 65535, 65535, AssemblyFullName, "OpenTelemetry.AutoInstrumentation.ByteCode.Instrumentations.Wcf.Client.WcfClientIntegration"));
+            }
+        }
+
+        // Logs
+        var logSettings = Instrumentation.LogSettings.Value;
+        if (logSettings.LogsEnabled)
+        {
+            // ILogger
+            if (logSettings.EnabledInstrumentations.Contains(LogInstrumentation.ILogger))
+            {
+                nativeCallTargetDefinitions.Add(new("Microsoft.Extensions.Telemetry", "Microsoft.Extensions.Logging.ExtendedLoggerFactory", ".ctor", new[] {"System.Void", "System.Collections.Generic.IEnumerable`1[Microsoft.Extensions.Logging.ILoggerProvider]", "System.Collections.Generic.IEnumerable`1[Microsoft.Extensions.Diagnostics.Enrichment.ILogEnricher]", "System.Collections.Generic.IEnumerable`1[Microsoft.Extensions.Diagnostics.Enrichment.IStaticLogEnricher]", "Microsoft.Extensions.Options.IOptionsMonitor`1[Microsoft.Extensions.Logging.LoggerFilterOptions]", "Microsoft.Extensions.Options.IOptions`1[Microsoft.Extensions.Logging.LoggerFactoryOptions]", "Microsoft.Extensions.Logging.IExternalScopeProvider", "Microsoft.Extensions.Options.IOptionsMonitor`1[Microsoft.Extensions.Logging.LoggerEnrichmentOptions]", "Microsoft.Extensions.Options.IOptionsMonitor`1[Microsoft.Extensions.Logging.LoggerRedactionOptions]", "Microsoft.Extensions.Compliance.Redaction.IRedactorProvider"}, 8, 0, 0, 9, 65535, 65535, AssemblyFullName, "OpenTelemetry.AutoInstrumentation.ByteCode.Instrumentations.ILogger.ExtendedLoggerFactoryConstructorIntegration"));
+                nativeCallTargetDefinitions.Add(new("Microsoft.Extensions.Logging", "Microsoft.Extensions.Logging.LoggerFactory", ".ctor", new[] {"System.Void", "System.Collections.Generic.IEnumerable`1[Microsoft.Extensions.Logging.ILoggerProvider]", "Microsoft.Extensions.Options.IOptionsMonitor`1[Microsoft.Extensions.Logging.LoggerFilterOptions]", "Microsoft.Extensions.Options.IOptions`1[Microsoft.Extensions.Logging.LoggerFactoryOptions]", "Microsoft.Extensions.Logging.IExternalScopeProvider"}, 8, 0, 0, 9, 65535, 65535, AssemblyFullName, "OpenTelemetry.AutoInstrumentation.ByteCode.Instrumentations.ILogger.LoggerFactoryConstructorIntegration"));
             }
         }
 

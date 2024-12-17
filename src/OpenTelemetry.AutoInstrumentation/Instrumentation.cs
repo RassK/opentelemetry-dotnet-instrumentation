@@ -2,9 +2,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #if NET
-using System.Diagnostics;
+using OpenTelemetry.AutoInstrumentation.Logger;
 #endif
 using System.Reflection;
+using Microsoft.Extensions.Logging;
 using OpenTelemetry.AutoInstrumentation.Configurations;
 using OpenTelemetry.AutoInstrumentation.Diagnostics;
 using OpenTelemetry.AutoInstrumentation.Loading;
@@ -55,6 +56,8 @@ internal static class Instrumentation
     internal static Lazy<LogSettings> LogSettings { get; } = new(() => Settings.FromDefaultSources<LogSettings>(FailFastSettings.Value.FailFast));
 
     internal static Lazy<SdkSettings> SdkSettings { get; } = new(() => Settings.FromDefaultSources<SdkSettings>(FailFastSettings.Value.FailFast));
+
+    internal static ILogger? OpenTelemetryLogger { get; set; }
 
     /// <summary>
     /// Initialize the OpenTelemetry SDK with a pre-defined set of exporters, shims, and
@@ -150,6 +153,15 @@ internal static class Instrumentation
                     Logger.Information("Initialized lazily-loaded metric instrumentations without initializing sdk.");
                 }
             }
+
+#if NET
+            if (LogSettings.Value.LogsEnabled)
+            {
+                OpenTelemetryLogger = LoggerFactory.Create(builder => builder
+                    .AddOpenTelemetryLogsFromStartup())
+                    .CreateLogger("OpenTelemetry");
+            }
+#endif
         }
         catch (Exception ex)
         {
