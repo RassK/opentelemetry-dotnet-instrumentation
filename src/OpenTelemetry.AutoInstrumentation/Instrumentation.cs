@@ -36,6 +36,11 @@ internal static class Instrumentation
 
     private static PluginManager? _pluginManager;
 
+#if NET
+    private static ILogger? _sdkLogBridge;
+    private static ILoggerFactory? _sdkLogBridgeFactory;
+#endif
+
     internal static LoggerProvider? LoggerProvider
     {
         get => LoggerProviderFactory.Value;
@@ -57,7 +62,12 @@ internal static class Instrumentation
 
     internal static Lazy<SdkSettings> SdkSettings { get; } = new(() => Settings.FromDefaultSources<SdkSettings>(FailFastSettings.Value.FailFast));
 
-    internal static ILogger? OpenTelemetryLogger { get; set; }
+#if NET
+    internal static ILogger? SDKLogBridge
+    {
+        get => _sdkLogBridge;
+    }
+#endif
 
     /// <summary>
     /// Initialize the OpenTelemetry SDK with a pre-defined set of exporters, shims, and
@@ -157,8 +167,10 @@ internal static class Instrumentation
 #if NET
             if (LogSettings.Value.LogsEnabled)
             {
-                OpenTelemetryLogger = LoggerFactory.Create(builder => builder
-                    .AddOpenTelemetryLogsFromStartup())
+                _sdkLogBridgeFactory = LoggerFactory.Create(builder => builder
+                    .AddOpenTelemetryLogsFromStartup());
+
+                _sdkLogBridge = _sdkLogBridgeFactory
                     .CreateLogger("OpenTelemetry");
             }
 #endif
@@ -334,6 +346,10 @@ internal static class Instrumentation
             }
 
             _sdkEventListener?.Dispose();
+
+#if NET
+            _sdkLogBridgeFactory?.Dispose();
+#endif
 
             Logger.Information("OpenTelemetry Automatic Instrumentation exit.");
         }

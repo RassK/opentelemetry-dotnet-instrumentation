@@ -56,11 +56,11 @@ internal class LoggerProvider
         var logger = AppDomain.CurrentDomain.GetAssemblies()
             .First(x => x.GetName().Name == "OpenTelemetry.AutoInstrumentation")
             .GetType("OpenTelemetry.AutoInstrumentation.Instrumentation")!
-            .GetProperty("OpenTelemetryLogger", BindingFlags.NonPublic | BindingFlags.Static)!
+            .GetProperty("SDKLogBridge", BindingFlags.NonPublic | BindingFlags.Static)!
             .GetValue(null);
 
-        var sink = logger.DuckCast<IOTelILogger>()!;
+        var bridge = logger.DuckCast<IOTelLogBridge>()!;
 
-        return new Logger(name, _scopeProvider, sink);
+        return new Logger(name, _scopeProvider, bridge);
     }
 }

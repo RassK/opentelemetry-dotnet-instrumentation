@@ -1,7 +1,6 @@
 // Copyright The OpenTelemetry Authors
 // SPDX-License-Identifier: Apache-2.0
 
-using System.Reflection;
 using OpenTelemetry.AutoInstrumentation.DuckTyping;
 
 namespace OpenTelemetry.AutoInstrumentation.ByteCode.Instrumentations.ILogger;
@@ -13,17 +12,22 @@ internal class Logger
 {
     private readonly string _name;
     private readonly IExternalScopeProvider? _scopeProvider;
-    private readonly IOTelILogger _sink;
-    private readonly int _minimumLogLevel = 1;
+    private readonly IOTelLogBridge _bridge;
+    private readonly int _minimumLogLevel;
+    private readonly bool _isEnabled;
 
     internal Logger(
         string name,
         IExternalScopeProvider? scopeProvider,
-        IOTelILogger sink)
+        IOTelLogBridge bridge)
     {
+        var settings = Instrumentation.LogSettings.Value;
+
         _name = name;
         _scopeProvider = scopeProvider;
-        _sink = sink;
+        _bridge = bridge;
+        _minimumLogLevel = GetLogLevel(settings);
+        _isEnabled = settings.LogsEnabled;
     }
 
     /// <summary>
@@ -43,7 +47,7 @@ internal class Logger
             return;
         }
 
-        _sink.Log(logLevel, eventId, state, exception, formatter);
+        _bridge.Log(logLevel, eventId, state, exception, formatter);
     }
 
     /// <summary>
@@ -52,7 +56,7 @@ internal class Logger
     /// <param name="logLevel">Level to be checked.</param>
     /// <returns><c>true</c> if enabled.</returns>
     [DuckReverseMethod(ParameterTypeNames = new[] { "Microsoft.Extensions.Logging.LogLevel, Microsoft.Extensions.Logging.Abstractions" })]
-    public bool IsEnabled(int logLevel) => logLevel >= _minimumLogLevel;
+    public bool IsEnabled(int logLevel) => _isEnabled ? logLevel >= _minimumLogLevel : false;
 
     /// <summary>
     /// Begins a logical operation scope.
@@ -62,6 +66,20 @@ internal class Logger
     /// <returns>An <see cref="IDisposable"/> that ends the logical operation scope on dispose.</returns>
     [DuckReverseMethod(ParameterTypeNames = new[] { "TState" })]
     public IDisposable BeginScope<TState>(TState state) => _scopeProvider?.Push(state!) ?? NullDisposable.Instance;
+
+    private int GetLogLevel(Configurations.LogSettings settings)
+    {
+        return settings.LogLevel switch
+        {
+            // TODO: try to use enums for ILogger.LogLevel values
+            Constants.ConfigurationValues.LogLevel.Error => 4,
+            Constants.ConfigurationValues.LogLevel.Warning => 3,
+            Constants.ConfigurationValues.LogLevel.Information => 2,
+            Constants.ConfigurationValues.LogLevel.Debug => 1,
+            Constants.ConfigurationValues.None => 6,
+            _ => 2
+        };
+    }
 
     private class NullDisposable : IDisposable
     {

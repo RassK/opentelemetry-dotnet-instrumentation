@@ -5,7 +5,7 @@ using OpenTelemetry.AutoInstrumentation.DuckTyping;
 
 namespace OpenTelemetry.AutoInstrumentation.ByteCode.Instrumentations.ILogger;
 
-internal interface IOTelILogger : IDuckType
+internal interface IOTelLogBridge : IDuckType
 {
     /// <summary>
     /// Used to add the ILoggerProvider

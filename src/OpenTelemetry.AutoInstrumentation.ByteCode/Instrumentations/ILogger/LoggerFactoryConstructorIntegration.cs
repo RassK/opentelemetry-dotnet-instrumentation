@@ -33,10 +33,10 @@ public class LoggerFactoryConstructorIntegration
 
     internal static CallTargetReturn OnMethodEnd<TTarget>(TTarget instance, Exception? exception, in CallTargetState state)
     {
-        // if (/* isDisabled */ false)
-        // {
-        //    return CallTargetReturn.GetDefault();
-        // }
+        if (!Instrumentation.LogSettings.Value.LogsEnabled)
+        {
+            return CallTargetReturn.GetDefault();
+        }
 
         if (exception is not null)
         {
@@ -47,10 +47,8 @@ public class LoggerFactoryConstructorIntegration
         var scopeProvider = state.State is { } rawScopeProvider
             ? rawScopeProvider.DuckCast<IExternalScopeProvider>()
             : null;
-        if (LoggerFactoryIntegrationCommon<TTarget>.TryAddDirectSubmissionLoggerProvider(instance, scopeProvider))
-        {
-            // TracerManager.Instance.Telemetry.IntegrationGeneratedSpan(IntegrationId.ILogger);
-        }
+
+        LoggerFactoryIntegrationCommon<TTarget>.TryAddDirectSubmissionLoggerProvider(instance, scopeProvider);
 
         return CallTargetReturn.GetDefault();
     }
