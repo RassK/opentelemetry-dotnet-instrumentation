@@ -1,6 +1,8 @@
 // Copyright The OpenTelemetry Authors
 // SPDX-License-Identifier: Apache-2.0
 
+#if NETFRAMEWORK
+
 using OpenTelemetry.AutoInstrumentation.CallTarget;
 
 namespace OpenTelemetry.AutoInstrumentation.ByteCode.Instrumentations.Wcf.Client;
@@ -38,39 +40,36 @@ namespace OpenTelemetry.AutoInstrumentation.ByteCode.Instrumentations.Wcf.Client
     maximumVersion: WcfCommonConstants.Max4Version,
     integrationName: WcfClientConstants.IntegrationName,
     type: InstrumentationType.Trace)]
-#if NET
-[InstrumentMethod(
-    assemblyName: WcfCommonConstants.ServiceModelPrimitivesAssemblyName,
-    typeName: WcfClientConstants.ChannelFactoryTypeName,
-    methodName: WcfClientConstants.InitializeEndpointMethodName,
-    returnTypeName: ClrNames.Void,
-    parameterTypeNames: new[] { ClrNames.String, WcfClientConstants.EndpointAddressTypeName },
-    minimumVersion: WcfCommonConstants.Min6Version,
-    maximumVersion: WcfCommonConstants.Max8Version,
-    integrationName: WcfClientConstants.IntegrationName,
-    type: InstrumentationType.Trace)]
-[InstrumentMethod(
-    assemblyName: WcfCommonConstants.ServiceModelPrimitivesAssemblyName,
-    typeName: WcfClientConstants.ChannelFactoryTypeName,
-    methodName: WcfClientConstants.InitializeEndpointMethodName,
-    returnTypeName: ClrNames.Void,
-    parameterTypeNames: new[] { WcfClientConstants.ServiceEndpointTypeName },
-    minimumVersion: WcfCommonConstants.Min6Version,
-    maximumVersion: WcfCommonConstants.Max8Version,
-    integrationName: WcfClientConstants.IntegrationName,
-    type: InstrumentationType.Trace)]
-[InstrumentMethod(
-    assemblyName: WcfCommonConstants.ServiceModelPrimitivesAssemblyName,
-    typeName: WcfClientConstants.ChannelFactoryTypeName,
-    methodName: WcfClientConstants.InitializeEndpointMethodName,
-    returnTypeName: ClrNames.Void,
-    parameterTypeNames: new[] { WcfClientConstants.BindingTypeName, WcfClientConstants.EndpointAddressTypeName },
-    minimumVersion: WcfCommonConstants.Min6Version,
-    maximumVersion: WcfCommonConstants.Max8Version,
-    integrationName: WcfClientConstants.IntegrationName,
-    type: InstrumentationType.Trace)]
-#endif
-#if NETFRAMEWORK
+// [InstrumentMethod(
+//    assemblyName: WcfCommonConstants.ServiceModelPrimitivesAssemblyName,
+//    typeName: WcfClientConstants.ChannelFactoryTypeName,
+//    methodName: WcfClientConstants.InitializeEndpointMethodName,
+//    returnTypeName: ClrNames.Void,
+//    parameterTypeNames: new[] { ClrNames.String, WcfClientConstants.EndpointAddressTypeName },
+//    minimumVersion: WcfCommonConstants.Min6Version,
+//    maximumVersion: WcfCommonConstants.Max8Version,
+//    integrationName: WcfClientConstants.IntegrationName,
+//    type: InstrumentationType.Trace)]
+// [InstrumentMethod(
+//    assemblyName: WcfCommonConstants.ServiceModelPrimitivesAssemblyName,
+//    typeName: WcfClientConstants.ChannelFactoryTypeName,
+//    methodName: WcfClientConstants.InitializeEndpointMethodName,
+//    returnTypeName: ClrNames.Void,
+//    parameterTypeNames: new[] { WcfClientConstants.ServiceEndpointTypeName },
+//    minimumVersion: WcfCommonConstants.Min6Version,
+//    maximumVersion: WcfCommonConstants.Max8Version,
+//    integrationName: WcfClientConstants.IntegrationName,
+//    type: InstrumentationType.Trace)]
+// [InstrumentMethod(
+//    assemblyName: WcfCommonConstants.ServiceModelPrimitivesAssemblyName,
+//    typeName: WcfClientConstants.ChannelFactoryTypeName,
+//    methodName: WcfClientConstants.InitializeEndpointMethodName,
+//    returnTypeName: ClrNames.Void,
+//    parameterTypeNames: new[] { WcfClientConstants.BindingTypeName, WcfClientConstants.EndpointAddressTypeName },
+//    minimumVersion: WcfCommonConstants.Min6Version,
+//    maximumVersion: WcfCommonConstants.Max8Version,
+//    integrationName: WcfClientConstants.IntegrationName,
+//    type: InstrumentationType.Trace)]
 [InstrumentMethod(
     assemblyName: WcfCommonConstants.ServiceModelAssemblyName,
     typeName: WcfClientConstants.ChannelFactoryTypeName,
@@ -81,7 +80,6 @@ namespace OpenTelemetry.AutoInstrumentation.ByteCode.Instrumentations.Wcf.Client
     maximumVersion: WcfCommonConstants.Max4Version,
     integrationName: WcfClientConstants.IntegrationName,
     type: InstrumentationType.Trace)]
-#endif
 public static class WcfClientIntegration
 {
     /// <summary>
@@ -100,3 +98,5 @@ public static class WcfClientIntegration
         return CallTargetReturn.GetDefault();
     }
 }
+
+#endif

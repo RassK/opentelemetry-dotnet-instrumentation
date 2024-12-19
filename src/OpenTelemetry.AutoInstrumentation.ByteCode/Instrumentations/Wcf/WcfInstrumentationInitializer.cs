@@ -4,9 +4,6 @@
 #if NETFRAMEWORK
 using System.Reflection;
 using OpenTelemetry.AutoInstrumentation.ByteCode.Instrumentations.AspNet;
-
-#endif
-
 using OpenTelemetry.Instrumentation.Wcf;
 
 using InstrumentationStart = OpenTelemetry.AutoInstrumentation.ByteCode.Instrumentation;
@@ -16,9 +13,7 @@ namespace OpenTelemetry.AutoInstrumentation.ByteCode.Instrumentations.Wcf;
 internal static class WcfInstrumentationInitializer
 {
     private static int _instrumentationOptionsInitialized;
-#if NETFRAMEWORK
     private static int _aspNetParentSpanCorrectorInitialized;
-#endif
 
     public static void TryInitializeOptions()
     {
@@ -38,7 +33,6 @@ internal static class WcfInstrumentationInitializer
         instrumentationType?.GetProperty("Options")?.SetValue(null, options);
     }
 
-#if NETFRAMEWORK
     public static void TryInitializeParentSpanCorrector()
     {
         if (Interlocked.Exchange(ref _aspNetParentSpanCorrectorInitialized, value: 1) != default)
@@ -53,5 +47,6 @@ internal static class WcfInstrumentationInitializer
             methodInfo?.Invoke(null, null);
         }
     }
-#endif
 }
+
+#endif

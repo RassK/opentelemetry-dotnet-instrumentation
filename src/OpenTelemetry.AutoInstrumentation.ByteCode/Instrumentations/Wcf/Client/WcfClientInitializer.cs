@@ -1,6 +1,9 @@
 // Copyright The OpenTelemetry Authors
 // SPDX-License-Identifier: Apache-2.0
 
+// Temporarily disable for .NET
+#if NETFRAMEWORK
+
 using OpenTelemetry.Instrumentation.Wcf;
 
 namespace OpenTelemetry.AutoInstrumentation.ByteCode.Instrumentations.Wcf.Client;
@@ -28,3 +31,5 @@ internal static class WcfClientInitializer
         }
     }
 }
+
+#endif

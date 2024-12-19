@@ -10,7 +10,7 @@ namespace OpenTelemetry.AutoInstrumentation.ByteCode.Instrumentations.ILogger;
 /// <summary>
 /// Duck type for ILoggerProvider
 /// </summary>
-[Microsoft.Extensions.Logging.ProviderAlias("OpenTelemetry")]
+// [Microsoft.Extensions.Logging.ProviderAlias("OpenTelemetry")]
 internal class LoggerProvider
 {
     private readonly Func<string, Logger> _createLoggerFunc;
