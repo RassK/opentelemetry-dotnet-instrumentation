@@ -1,0 +1,12 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <AssemblyName>OpenTelemetry.AutoInstrumentation.ByteCode</AssemblyName>
+    <RootNamespace>OpenTelemetry.AutoInstrumentation.ByteCode</RootNamespace>
+    <Platforms>AnyCPU</Platforms>
+    <ApplicationIcon />
+    <OutputType>Library</OutputType>
+    <StartupObject />
+  </PropertyGroup>
+
+</Project>
