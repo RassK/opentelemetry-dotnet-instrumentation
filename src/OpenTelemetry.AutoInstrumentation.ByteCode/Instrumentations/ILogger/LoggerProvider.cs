@@ -1,6 +1,8 @@
 // Copyright The OpenTelemetry Authors
 // SPDX-License-Identifier: Apache-2.0
 
+#if NET
+
 using System.Collections.Concurrent;
 using System.Reflection;
 using OpenTelemetry.AutoInstrumentation.DuckTyping;
@@ -10,7 +12,7 @@ namespace OpenTelemetry.AutoInstrumentation.ByteCode.Instrumentations.ILogger;
 /// <summary>
 /// Duck type for ILoggerProvider
 /// </summary>
-// [Microsoft.Extensions.Logging.ProviderAlias("OpenTelemetry")]
+[Microsoft.Extensions.Logging.ProviderAlias("OpenTelemetry")]
 internal class LoggerProvider
 {
     private readonly Func<string, Logger> _createLoggerFunc;
@@ -64,3 +66,5 @@ internal class LoggerProvider
         return new Logger(name, _scopeProvider, bridge);
     }
 }
+
+#endif

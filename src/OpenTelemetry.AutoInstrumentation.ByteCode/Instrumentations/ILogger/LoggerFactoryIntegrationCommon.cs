@@ -1,6 +1,8 @@
 // Copyright The OpenTelemetry Authors
 // SPDX-License-Identifier: Apache-2.0
 
+#if NET
+
 using System.Reflection;
 using System.Reflection.Emit;
 using OpenTelemetry.AutoInstrumentation.DuckTyping;
@@ -89,3 +91,6 @@ internal static class LoggerFactoryIntegrationCommon<TLoggerFactory>
         return false;
     }
 }
+
+#endif
+
