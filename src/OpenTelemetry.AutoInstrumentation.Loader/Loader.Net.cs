@@ -3,7 +3,6 @@
 
 #if NET
 using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Runtime.Loader;
 
 namespace OpenTelemetry.AutoInstrumentation.Loader;
@@ -14,8 +13,6 @@ namespace OpenTelemetry.AutoInstrumentation.Loader;
 internal partial class Loader
 {
     internal static AssemblyLoadContext OTelLoadContext { get; }
-
-    internal static string[]? StoreFiles { get; } = GetStoreFiles();
 
     private static string ResolveManagedProfilerDirectory()
     {
@@ -33,35 +30,6 @@ internal partial class Loader
     private static Assembly LoadSharedAssembly(string assemblyName)
     {
         return AssemblyLoadContext.Default.LoadFromAssemblyName(new AssemblyName(assemblyName));
-    }
-
-    private static string[]? GetStoreFiles()
-    {
-        try
-        {
-            var storeDirectory = Environment.GetEnvironmentVariable("DOTNET_SHARED_STORE");
-            if (storeDirectory == null || !Directory.Exists(storeDirectory))
-            {
-                return null;
-            }
-
-            var architecture = RuntimeInformation.ProcessArchitecture switch
-            {
-                Architecture.X86 => "x86",
-                Architecture.Arm64 => "arm64",
-                _ => "x64" // Default to x64 for architectures not explicitly handled
-            };
-
-            var targetFramework = $"net{Environment.Version.Major}.{Environment.Version.Minor}";
-            var finalPath = Path.Combine(storeDirectory, architecture, targetFramework);
-
-            var storeFiles = Directory.GetFiles(finalPath, "Microsoft.Extensions*.dll", SearchOption.AllDirectories);
-            return storeFiles;
-        }
-        catch
-        {
-            return null;
-        }
     }
 
     private static Assembly? AssemblyResolve_ManagedProfilerDependencies(object? sender, ResolveEventArgs args)
