@@ -53,9 +53,10 @@ public class LoaderTests
 
         using (new AssertionScope())
         {
-            otelAssemblies.Should().HaveCount(4);
+            otelAssemblies.Should().HaveCount(5);
             otelAssemblies.Should().Contain("OpenTelemetry.AutoInstrumentation");
             otelAssemblies.Should().Contain("OpenTelemetry.AutoInstrumentation.ByteCode");
+            otelAssemblies.Should().Contain("OpenTelemetry.AutoInstrumentation.Bridge");
         }
     }
 }
