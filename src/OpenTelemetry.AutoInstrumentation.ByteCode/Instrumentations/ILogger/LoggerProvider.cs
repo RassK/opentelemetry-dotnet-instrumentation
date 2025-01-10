@@ -4,7 +4,6 @@
 #if NET
 
 using System.Collections.Concurrent;
-using System.Reflection;
 using OpenTelemetry.AutoInstrumentation.DuckTyping;
 
 namespace OpenTelemetry.AutoInstrumentation.ByteCode.Instrumentations.ILogger;
@@ -55,15 +54,9 @@ internal class LoggerProvider
 
     private Logger CreateLoggerImplementation(string name)
     {
-        var logger = AppDomain.CurrentDomain.GetAssemblies()
-            .First(x => x.GetName().Name == "OpenTelemetry.AutoInstrumentation")
-            .GetType("OpenTelemetry.AutoInstrumentation.Instrumentation")!
-            .GetProperty("SDKLogBridge", BindingFlags.NonPublic | BindingFlags.Static)!
-            .GetValue(null);
+        var state = Instrumentation.CommonBridge;
 
-        var bridge = logger.DuckCast<IOTelLogBridge>()!;
-
-        return new Logger(name, _scopeProvider, bridge);
+        return new Logger(name, _scopeProvider, state!.LoggingBridge!);
     }
 }
 

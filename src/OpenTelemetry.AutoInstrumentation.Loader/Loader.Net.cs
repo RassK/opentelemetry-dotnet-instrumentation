@@ -50,7 +50,8 @@ internal partial class Loader
 
         var path = Path.Combine(ManagedProfilerDirectory, $"{assemblyName.Name}.dll");
 
-        if (assemblyName.Name == "OpenTelemetry.AutoInstrumentation.ByteCode")
+        if (assemblyName.Name == "OpenTelemetry.AutoInstrumentation.ByteCode" ||
+            assemblyName.Name == "OpenTelemetry.AutoInstrumentation.Bridge")
         {
             return AssemblyLoadContext.Default.LoadFromAssemblyPath(path);
         }

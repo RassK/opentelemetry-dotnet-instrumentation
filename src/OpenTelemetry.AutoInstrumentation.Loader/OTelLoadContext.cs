@@ -22,7 +22,8 @@ internal class OTelLoadContext : AssemblyLoadContext
 
     protected override Assembly? Load(AssemblyName assemblyName)
     {
-        if (assemblyName.Name == "System.Diagnostics.DiagnosticSource")
+        if (assemblyName.Name == "System.Diagnostics.DiagnosticSource" ||
+            assemblyName.Name == "OpenTelemetry.AutoInstrumentation.Bridge")
         {
             return Default.LoadFromAssemblyName(assemblyName);
         }

@@ -6,6 +6,7 @@ using OpenTelemetry.AutoInstrumentation.Logger;
 #endif
 using System.Reflection;
 using Microsoft.Extensions.Logging;
+using OpenTelemetry.AutoInstrumentation.Bridge;
 using OpenTelemetry.AutoInstrumentation.Configurations;
 using OpenTelemetry.AutoInstrumentation.Diagnostics;
 using OpenTelemetry.AutoInstrumentation.Loading;
@@ -39,6 +40,7 @@ internal static class Instrumentation
 #if NET
     private static ILogger? _sdkLogBridge;
     private static ILoggerFactory? _sdkLogBridgeFactory;
+    private static ILoggingBridge? _loggingBridge;
 #endif
 
     internal static LoggerProvider? LoggerProvider
@@ -62,23 +64,22 @@ internal static class Instrumentation
 
     internal static Lazy<SdkSettings> SdkSettings { get; } = new(() => Settings.FromDefaultSources<SdkSettings>(FailFastSettings.Value.FailFast));
 
-#if NET
-    internal static ILogger? SDKLogBridge
-    {
-        get => _sdkLogBridge;
-    }
-#endif
-
     /// <summary>
     /// Initialize the OpenTelemetry SDK with a pre-defined set of exporters, shims, and
     /// instrumentations.
     /// </summary>
-    public static void Initialize()
+    public static ICommonBridge Initialize()
     {
         if (Interlocked.Exchange(ref _initialized, value: 1) != 0)
         {
             // Initialize() was already called before
-            return;
+
+            return new CommonBridge()
+            {
+#if NET
+                LoggingBridge = null
+#endif
+            };
         }
 
 #if NETFRAMEWORK
@@ -167,11 +168,22 @@ internal static class Instrumentation
 #if NET
             if (LogSettings.Value.LogsEnabled)
             {
-                _sdkLogBridgeFactory = LoggerFactory.Create(builder => builder
-                    .AddOpenTelemetryLogsFromStartup());
+                try
+                {
+                    _sdkLogBridgeFactory = LoggerFactory.Create(builder => builder
+                        .AddOpenTelemetryLogsFromStartup());
 
-                _sdkLogBridge = _sdkLogBridgeFactory
-                    .CreateLogger("OpenTelemetry");
+                    _sdkLogBridge = _sdkLogBridgeFactory
+                        .CreateLogger("OpenTelemetry");
+
+                    _loggingBridge = new LoggingBridge(_sdkLogBridge);
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error(ex, "Could not create log bridge");
+
+                    throw;
+                }
             }
 #endif
         }
@@ -185,6 +197,13 @@ internal static class Instrumentation
         {
             OpenTracingHelper.EnableOpenTracing(_tracerProvider);
         }
+
+        return new CommonBridge()
+        {
+#if NET
+            LoggingBridge = _loggingBridge
+#endif
+        };
     }
 
     private static LoggerProvider? InitializeLoggerProvider()
@@ -389,5 +408,12 @@ internal static class Instrumentation
                 // with the exception.
             }
         }
+    }
+
+    public class CommonBridge : ICommonBridge
+    {
+#if NET
+        public required ILoggingBridge? LoggingBridge { get; init; }
+#endif
     }
 }

@@ -253,6 +253,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenTelemetry.AutoInstrumen
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenTelemetry.AutoInstrumentation.ByteCode.Mock", "test\test-applications\mocks\OpenTelemetry.AutoInstrumentation.ByteCode.Mock\OpenTelemetry.AutoInstrumentation.ByteCode.Mock.csproj", "{92A5DDA8-A28D-426F-9685-DF4C2A894713}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenTelemetry.AutoInstrumentation.Bridge", "src\OpenTelemetry.AutoInstrumentation.Bridge\OpenTelemetry.AutoInstrumentation.Bridge.csproj", "{E9C1DE4B-22BA-4018-894C-CDEAC243B5A5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -1585,6 +1587,22 @@ Global
 		{92A5DDA8-A28D-426F-9685-DF4C2A894713}.Release|x64.Build.0 = Release|Any CPU
 		{92A5DDA8-A28D-426F-9685-DF4C2A894713}.Release|x86.ActiveCfg = Release|Any CPU
 		{92A5DDA8-A28D-426F-9685-DF4C2A894713}.Release|x86.Build.0 = Release|Any CPU
+		{E9C1DE4B-22BA-4018-894C-CDEAC243B5A5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E9C1DE4B-22BA-4018-894C-CDEAC243B5A5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E9C1DE4B-22BA-4018-894C-CDEAC243B5A5}.Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{E9C1DE4B-22BA-4018-894C-CDEAC243B5A5}.Debug|ARM64.Build.0 = Debug|Any CPU
+		{E9C1DE4B-22BA-4018-894C-CDEAC243B5A5}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{E9C1DE4B-22BA-4018-894C-CDEAC243B5A5}.Debug|x64.Build.0 = Debug|Any CPU
+		{E9C1DE4B-22BA-4018-894C-CDEAC243B5A5}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{E9C1DE4B-22BA-4018-894C-CDEAC243B5A5}.Debug|x86.Build.0 = Debug|Any CPU
+		{E9C1DE4B-22BA-4018-894C-CDEAC243B5A5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E9C1DE4B-22BA-4018-894C-CDEAC243B5A5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E9C1DE4B-22BA-4018-894C-CDEAC243B5A5}.Release|ARM64.ActiveCfg = Release|Any CPU
+		{E9C1DE4B-22BA-4018-894C-CDEAC243B5A5}.Release|ARM64.Build.0 = Release|Any CPU
+		{E9C1DE4B-22BA-4018-894C-CDEAC243B5A5}.Release|x64.ActiveCfg = Release|Any CPU
+		{E9C1DE4B-22BA-4018-894C-CDEAC243B5A5}.Release|x64.Build.0 = Release|Any CPU
+		{E9C1DE4B-22BA-4018-894C-CDEAC243B5A5}.Release|x86.ActiveCfg = Release|Any CPU
+		{E9C1DE4B-22BA-4018-894C-CDEAC243B5A5}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -1678,6 +1696,7 @@ Global
 		{12AC62DA-4129-49B4-A93A-D974F46A4673} = {9E5F0022-0A50-40BF-AC6A-C3078585ECAB}
 		{F9813F1B-BEF6-4721-B264-1A8116B0B834} = {5C915382-C886-457D-8641-9E766D8E5A17}
 		{92A5DDA8-A28D-426F-9685-DF4C2A894713} = {E3ABDF7D-4592-4923-907C-D351DDF1CBE9}
+		{E9C1DE4B-22BA-4018-894C-CDEAC243B5A5} = {9E5F0022-0A50-40BF-AC6A-C3078585ECAB}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {160A1D00-1F5B-40F8-A155-621B4459D78F}

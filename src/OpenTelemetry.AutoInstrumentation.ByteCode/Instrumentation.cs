@@ -6,6 +6,7 @@ using System.Diagnostics;
 using OpenTelemetry.AutoInstrumentation.ByteCode.ContinuousProfiler;
 #endif
 
+using OpenTelemetry.AutoInstrumentation.Bridge;
 using OpenTelemetry.AutoInstrumentation.Configurations;
 using OpenTelemetry.AutoInstrumentation.Loading;
 using OpenTelemetry.AutoInstrumentation.Logging;
@@ -22,6 +23,7 @@ internal static class Instrumentation
     private static ILifespanManager _lifespanManager = new InstrumentationLifespanManager();
 
     private static PluginManager? _pluginManager;
+    private static ICommonBridge? _commonBridge;
 
 #if NET
     private static ContinuousProfilerProcessor? _profilerProcessor;
@@ -30,6 +32,8 @@ internal static class Instrumentation
     internal static ILifespanManager LifespanManager => _lifespanManager;
 
     internal static PluginManager? PluginManager => _pluginManager;
+
+    internal static ICommonBridge? CommonBridge => _commonBridge;
 
     internal static Lazy<FailFastSettings> FailFastSettings { get; } = new(() => Settings.FromDefaultSources<FailFastSettings>(false));
 
@@ -41,13 +45,15 @@ internal static class Instrumentation
 
     internal static Lazy<LogSettings> LogSettings { get; } = new(() => Settings.FromDefaultSources<LogSettings>(FailFastSettings.Value.FailFast));
 
-    public static void Initialize()
+    public static void Initialize(ICommonBridge pluginState)
     {
         if (Interlocked.Exchange(ref _initialized, value: 1) != 0)
         {
             // Initialize() was already called before
             return;
         }
+
+        _commonBridge = pluginState;
 
         // Register to shutdown events
         AppDomain.CurrentDomain.ProcessExit += OnExit;

@@ -86,4 +86,8 @@
     <PackageReference Include="System.ValueTuple" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\OpenTelemetry.AutoInstrumentation.Bridge\OpenTelemetry.AutoInstrumentation.Bridge.csproj" />
+  </ItemGroup>
+
 </Project>

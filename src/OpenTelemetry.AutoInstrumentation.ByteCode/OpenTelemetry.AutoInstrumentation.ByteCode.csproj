@@ -22,6 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\OpenTelemetry.AutoInstrumentation.Bridge\OpenTelemetry.AutoInstrumentation.Bridge.csproj" />
     <ProjectReference Include="..\SourceGenerators\SourceGenerators.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
     <Compile Remove="$(GeneratedFolder)/*/**/*.cs" />
   </ItemGroup>

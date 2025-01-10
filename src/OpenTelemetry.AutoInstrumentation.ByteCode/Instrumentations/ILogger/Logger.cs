@@ -1,6 +1,9 @@
 // Copyright The OpenTelemetry Authors
 // SPDX-License-Identifier: Apache-2.0
 
+#if NET
+
+using OpenTelemetry.AutoInstrumentation.Bridge;
 using OpenTelemetry.AutoInstrumentation.DuckTyping;
 
 namespace OpenTelemetry.AutoInstrumentation.ByteCode.Instrumentations.ILogger;
@@ -12,14 +15,14 @@ internal class Logger
 {
     private readonly string _name;
     private readonly IExternalScopeProvider? _scopeProvider;
-    private readonly IOTelLogBridge _bridge;
+    private readonly ILoggingBridge _bridge;
     private readonly int _minimumLogLevel;
     private readonly bool _isEnabled;
 
     internal Logger(
         string name,
         IExternalScopeProvider? scopeProvider,
-        IOTelLogBridge bridge)
+        ILoggingBridge bridge)
     {
         var settings = Instrumentation.LogSettings.Value;
 
@@ -47,7 +50,8 @@ internal class Logger
             return;
         }
 
-        _bridge.Log(logLevel, eventId, state, exception, formatter);
+        // TODO: Fetch id from eventId
+        _bridge.Log(logLevel, 100, state, exception, formatter);
     }
 
     /// <summary>
@@ -90,3 +94,5 @@ internal class Logger
         }
     }
 }
+
+#endif

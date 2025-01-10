@@ -46,8 +46,8 @@ internal partial class Loader
 
         try
         {
-            LoadMainModule();
-            LoadByteCodeModule();
+            var commonBridge = LoadMainModule();
+            LoadByteCodeModule(commonBridge);
         }
         catch (Exception ex)
         {
@@ -56,7 +56,7 @@ internal partial class Loader
         }
     }
 
-    private static void LoadMainModule()
+    private static object? LoadMainModule()
     {
         var assembly = LoadMainAssembly("OpenTelemetry.AutoInstrumentation");
         if (assembly == null)
@@ -76,10 +76,12 @@ internal partial class Loader
             throw new MissingMethodException("The method OpenTelemetry.AutoInstrumentation.Instrumentation.Initialize could not be loaded");
         }
 
-        method.Invoke(obj: null, parameters: null);
+        var commonBridge = method.Invoke(obj: null, parameters: null);
+
+        return commonBridge;
     }
 
-    private static void LoadByteCodeModule()
+    private static Assembly LoadByteCodeModule(object? commonBridge)
     {
         var assembly = LoadSharedAssembly("OpenTelemetry.AutoInstrumentation.ByteCode");
         if (assembly == null)
@@ -93,13 +95,16 @@ internal partial class Loader
             throw new TypeLoadException("The type OpenTelemetry.AutoInstrumentation.ByteCode.Instrumentation could not be loaded");
         }
 
-        var method = type.GetRuntimeMethod("Initialize", Type.EmptyTypes);
+        var paramsType = Type.GetType("OpenTelemetry.AutoInstrumentation.Bridge.ICommonBridge, OpenTelemetry.AutoInstrumentation.Bridge")!;
+        var method = type.GetRuntimeMethod("Initialize", [paramsType]);
         if (method == null)
         {
             throw new MissingMethodException("The method OpenTelemetry.AutoInstrumentation.ByteCode.Instrumentation.Initialize could not be loaded");
         }
 
-        method.Invoke(obj: null, parameters: null);
+        method.Invoke(obj: null, parameters: [commonBridge]);
+
+        return assembly;
     }
 
     private static string? ReadEnvironmentVariable(string key)
