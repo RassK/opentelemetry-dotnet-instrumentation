@@ -1,4 +1,4 @@
-FROM quay.io/centos/centos:stream9@sha256:ae0cd612d8614e454a92d217a099ff7359fbbcaf9f6888c080d5e1d0bfede661
+FROM quay.io/centos/centos:stream9@sha256:e2c8a7c23fbba405e0c9b99db181379c84d606ae7f3b4b45b74e0e148c517137
 
 # Install dotnet sdk
 RUN dnf install -y \
@@ -6,7 +6,7 @@ RUN dnf install -y \
 
 RUN curl -sSL https://dot.net/v1/dotnet-install.sh --output dotnet-install.sh \
     && echo "SHA256: $(sha256sum dotnet-install.sh)" \
-    && echo "c169af55281cd1e58cdbe3ec95c2480cfb210ee460b3ff1421745c8f3236b263  dotnet-install.sh" | sha256sum -c \
+    && echo "48e5763854527aca84bf2c9b1542a22ec490e85657725eac8dc18eb0ed809413  dotnet-install.sh" | sha256sum -c \
     && chmod +x ./dotnet-install.sh \
     && ./dotnet-install.sh -v 9.0.101 --install-dir /usr/share/dotnet --no-path \
     && ./dotnet-install.sh -v 8.0.404 --install-dir /usr/share/dotnet --no-path \
