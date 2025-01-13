@@ -9,4 +9,8 @@
     <StartupObject />
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\src\OpenTelemetry.AutoInstrumentation.Bridge\OpenTelemetry.AutoInstrumentation.Bridge.csproj" />
+  </ItemGroup>
+
 </Project>

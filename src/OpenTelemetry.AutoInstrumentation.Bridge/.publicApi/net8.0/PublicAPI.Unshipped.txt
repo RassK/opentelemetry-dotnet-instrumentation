@@ -1,0 +1,4 @@
+OpenTelemetry.AutoInstrumentation.Bridge.ICommonBridge
+OpenTelemetry.AutoInstrumentation.Bridge.ICommonBridge.LoggingBridge.get -> OpenTelemetry.AutoInstrumentation.Bridge.ILoggingBridge?
+OpenTelemetry.AutoInstrumentation.Bridge.ILoggingBridge
+OpenTelemetry.AutoInstrumentation.Bridge.ILoggingBridge.Log<TState>(int logLevel, int eventId, TState state, System.Exception? exception, System.Func<TState, System.Exception?, string!>! formatter) -> void
