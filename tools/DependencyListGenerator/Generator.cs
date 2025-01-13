@@ -18,7 +18,7 @@ public static class Generator
             dotNetRestoreService: new DotNetRestoreService(dotNetRunner, fileSystem),
             fileSystem: fileSystem);
 
-        var result = analysisService.AnalyzeProject(projectPath, true, true, 1024)[0];
+        var result = analysisService.AnalyzeProject(projectPath, true, true, 1024).First(x => x.Name == "OpenTelemetry.AutoInstrumentation.Runtime.Managed");
         var net462 = result.TargetFrameworks.First(x => x.Name.ToString() == ".NETFramework,Version=v4.6.2");
 
         foreach (var dep in net462.Dependencies.OrderBy(x => x.Name))
