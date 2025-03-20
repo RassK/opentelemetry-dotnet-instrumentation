@@ -24,7 +24,7 @@ public class MockProfilesCollector : IDisposable
     public MockProfilesCollector(ITestOutputHelper output)
     {
         _output = output;
-        _listener = new(output, new PathHandler(HandleHttpRequests, "/v1/profiles"));
+        _listener = new(output, new PathHandler(HandleHttpRequests, "/v1development/profiles"));
     }
 
     /// <summary>
@@ -157,8 +157,8 @@ public class MockProfilesCollector : IDisposable
     private static void FailCollectedExpectation(string? collectedExpectationDescription, ExportProfilesServiceRequest[] collectedExportProfilesServiceRequests)
     {
         var message = new StringBuilder();
-        message.AppendLine($"Collected logs expectation failed: {collectedExpectationDescription}");
-        message.AppendLine("Collected logs:");
+        message.AppendLine($"Collected profiles expectation failed: {collectedExpectationDescription}");
+        message.AppendLine("Collected profiles:");
         foreach (var logRecord in collectedExportProfilesServiceRequests)
         {
             message.AppendLine($"    \"{logRecord}\"");

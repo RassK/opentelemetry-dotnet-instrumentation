@@ -32,22 +32,22 @@ jobs:
       fail-fast: false
       matrix:
         test-tfm: [ net9.0, net8.0, net462 ]
-        machine: [ windows-2022, ubuntu-20.04, macos-13] #, otel-linux-arm64 ]
+        machine: [ windows-2022, ubuntu-22.04, macos-13, ubuntu-22.04-arm ]
         exclude:
           - test-tfm: net462
             machine: macos-13
           - test-tfm: net462
-            machine: ubuntu-20.04
+            machine: ubuntu-22.04
           - test-tfm: net462
-            machine: otel-linux-arm64
+            machine: ubuntu-22.04-arm
         include:
           - machine: windows-2022
             containers: none
-          - machine: ubuntu-20.04
+          - machine: ubuntu-22.04
             containers: linux
           - machine: macos-13
             containers: none
-          - machine: otel-linux-arm64
+          - machine: ubuntu-22.04-arm
             containers: linux
     runs-on: ${{ matrix.machine }}
     steps:
@@ -57,52 +57,38 @@ jobs:
         with:
           fetch-depth: 0 # fetching all, needed to correctly calculate version
 
-      - name: Setup ARM64 Environment Variables
-        if: ${{ matrix.machine == 'otel-linux-arm64' }}
-        run: |
-          echo "DOTNET_INSTALL_DIR=~/.dotnet" >> $GITHUB_ENV
-
       - name: Setup .NET
-        uses: actions/setup-dotnet@87b7050bc53ea08284295505d98d2aa94301e852 # tag: v4.2.0
+        uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # tag: v4.3.1
         with:
           dotnet-version: | 
-            8.0.404
-            9.0.101
+            8.0.407
+            9.0.202
 
       - name: Check for NuGet packages cache
-        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # tag: v4.2.0
+        uses: actions/cache@d4323d4df104b026a6aa633fdb11d772146be0bf # tag: v4.2.2
         id: nuget-cache
         with:
           key: ${{ hashFiles('**/Directory.packages.props', './build/LibraryVersions.g.cs', '**/packages.config' ) }}
           path: ${{ env.NUGET_PACKAGES }}
 
       - name: Download Artifacts from build job
-        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # tag: v4.1.8
+        uses: actions/download-artifact@cc203385981b70ca67e1cc392babf9cc229d5806 # tag: v4.1.9
         with:
           name: bin-${{ matrix.machine }}
           path: bin/tracer-home
 
       - name: Install SQL Server (localdb)
         if: ${{ runner.os == 'Windows' }}
-        uses: potatoqualitee/mssqlsuite@9a0136e208df60b8ecb62909f076bc34854fa55a # tag: v1.7
+        uses: potatoqualitee/mssqlsuite@605af2310e2e22978ebf2c74d5995ba102094b8a # tag: v1.8
         with: 
           install: localdb
-      
-      - name: Setup ARM64 Machine
-        if: ${{ matrix.machine == 'otel-linux-arm64' }}
-        run: |
-          sudo apt-get update && \
-          sudo apt-get install -y \
-              cmake \
-              clang \
-              make
 
       - name: Run TestWorkflow
         run: ./build.cmd --skip NativeTests --target TestWorkflow --test-target-framework ${{ matrix.test-tfm }} --containers ${{ matrix.containers }}
 
       - name: Upload test logs
         if: always()
-        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # tag: v4.5.0
+        uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # tag: v4.6.1
         with:
           name: test-logs-${{ matrix.machine }}-${{ matrix.test-tfm }}-containers-${{ matrix.containers }}
           path: test-artifacts/
@@ -127,21 +113,21 @@ jobs:
           fetch-depth: 0 # fetching all, needed to correctly calculate version
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@87b7050bc53ea08284295505d98d2aa94301e852 # tag: v4.2.0
+        uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # tag: v4.3.1
         with:
           dotnet-version: | 
-            8.0.404
-            9.0.101
+            8.0.407
+            9.0.202
 
       - name: Check for NuGet packages cache
-        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # tag: v4.2.0
+        uses: actions/cache@d4323d4df104b026a6aa633fdb11d772146be0bf # tag: v4.2.2
         id: nuget-cache
         with:
           key: ${{ hashFiles('**/Directory.packages.props', './build/LibraryVersions.g.cs', '**/packages.config' ) }}
           path: ${{ env.NUGET_PACKAGES }}
 
       - name: Download Artifacts from build job
-        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # tag: v4.1.8
+        uses: actions/download-artifact@cc203385981b70ca67e1cc392babf9cc229d5806 # tag: v4.1.9
         with:
           name: bin-${{ matrix.machine }}
           path: bin/tracer-home
@@ -166,21 +152,21 @@ jobs:
           fetch-depth: 0 # fetching all, needed to correctly calculate version
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@87b7050bc53ea08284295505d98d2aa94301e852 # tag: v4.2.0
+        uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # tag: v4.3.1
         with:
           dotnet-version: | 
-            8.0.404
-            9.0.101
+            8.0.407
+            9.0.202
 
       - name: Check for NuGet packages cache
-        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # tag: v4.2.0
+        uses: actions/cache@d4323d4df104b026a6aa633fdb11d772146be0bf # tag: v4.2.2
         id: nuget-cache
         with:
           key: ${{ hashFiles('**/Directory.packages.props', './build/LibraryVersions.g.cs', '**/packages.config' ) }}
           path: ${{ env.NUGET_PACKAGES }}
 
       - name: Download Artifacts from build job
-        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # tag: v4.1.8
+        uses: actions/download-artifact@cc203385981b70ca67e1cc392babf9cc229d5806 # tag: v4.1.9
         with:
           name: bin-${{ matrix.machine }}
           path: bin/tracer-home
@@ -193,7 +179,7 @@ jobs:
 
       - name: Upload test logs
         if: always()
-        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # tag: v4.5.0
+        uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # tag: v4.6.1
         with:
           name: test-logs-${{ matrix.machine }}-containers-${{ matrix.containers }}
           path: test-artifacts/
@@ -204,25 +190,25 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - machine: ubuntu-20.04
+          - machine: ubuntu-22.04
             base-image: alpine
             build-source: alpine-x64
             os-type: linux-musl
-          - machine: ubuntu-20.04
+          - machine: ubuntu-22.04
             base-image: debian
-            build-source: ubuntu-20.04
+            build-source: ubuntu-22.04
             os-type: linux-glibc
-          - machine: ubuntu-20.04
+          - machine: ubuntu-22.04
             base-image: centos-stream9
-            build-source: ubuntu-20.04
+            build-source: ubuntu-22.04
             os-type: linux-glibc
-          - machine: otel-linux-arm64
+          - machine: ubuntu-22.04-arm
             base-image: alpine
             build-source: alpine-arm64
             os-type: linux-musl
-          - machine: otel-linux-arm64
+          - machine: ubuntu-22.04-arm
             base-image: debian-arm64
-            build-source: otel-linux-arm64
+            build-source: ubuntu-22.04-arm
             os-type: linux-glibc
     runs-on: ${{ matrix.machine }}
     timeout-minutes: 60
@@ -234,7 +220,7 @@ jobs:
         fetch-depth: 0 # fetching all, needed to correctly calculate version
 
     - name: Download Artifacts from build job
-      uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # tag: v4.1.8
+      uses: actions/download-artifact@cc203385981b70ca67e1cc392babf9cc229d5806 # tag: v4.1.9
       with:
         name: bin-${{ matrix.build-source }}
         path: bin/tracer-home
@@ -252,10 +238,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - machine: ubuntu-20.04
+          - machine: ubuntu-22.04
           - machine: macos-13
           - machine: windows-2022
-          - machine: otel-linux-arm64
+          - machine: ubuntu-22.04-arm
     runs-on: ${{ matrix.machine }}
     steps:
       
@@ -264,27 +250,22 @@ jobs:
         with:
           fetch-depth: 0 # fetching all, needed to correctly calculate version
 
-      - name: Setup ARM64 Environment Variables
-        if: ${{ matrix.machine == 'otel-linux-arm64' }}
-        run: |
-          echo "DOTNET_INSTALL_DIR=~/.dotnet" >> $GITHUB_ENV
-
       - name: Setup .NET
-        uses: actions/setup-dotnet@87b7050bc53ea08284295505d98d2aa94301e852 # tag: v4.2.0
+        uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # tag: v4.3.1
         with:
           dotnet-version: | 
-            8.0.404
-            9.0.101
+            8.0.407
+            9.0.202
 
       - name: Check for NuGet packages cache
-        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # tag: v4.2.0
+        uses: actions/cache@d4323d4df104b026a6aa633fdb11d772146be0bf # tag: v4.2.2
         id: nuget-cache
         with:
           key: ${{ hashFiles('**/Directory.packages.props', './build/LibraryVersions.g.cs', '**/packages.config' ) }}
           path: ${{ env.NUGET_PACKAGES }}
 
       - name: Download NuGet Artifacts from build-nuget-packages job
-        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # tag: v4.1.8
+        uses: actions/download-artifact@cc203385981b70ca67e1cc392babf9cc229d5806 # tag: v4.1.9
         with:
           name: bin-nuget-packages
           path: bin/nuget-artifacts/
@@ -294,13 +275,13 @@ jobs:
 
       - name: Upload test logs
         if: always()
-        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # tag: v4.5.0
+        uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # tag: v4.6.1
         with:
           name: test-logs-nuget-packages-${{ matrix.machine }}
           path: test-artifacts/
 
   test-jobs:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     needs:
       - test-build-managed
       - test-build-native

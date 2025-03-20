@@ -5,6 +5,7 @@ using System.Diagnostics;
 using Google.Protobuf;
 using OpenTelemetry.Proto.Common.V1;
 using OpenTelemetry.Proto.Profiles.V1Development;
+using ValueType = OpenTelemetry.Proto.Profiles.V1Development.ValueType;
 
 namespace TestApplication.ContinuousProfiler;
 
@@ -14,7 +15,7 @@ internal class ExtendedPprofBuilder
     private readonly LinkCache _linkCache;
     private readonly AttributeCache _attributeCache;
 
-    public ExtendedPprofBuilder(string profilingDataType, long timestampNanoseconds)
+    public ExtendedPprofBuilder(string sampleType, string sampleUnit, string? periodType, string? periodUnit, long? period, long timestampNanoseconds)
     {
         var profileByteId = new byte[16];
         ActivityTraceId.CreateRandom().CopyTo(profileByteId);
@@ -23,14 +24,35 @@ internal class ExtendedPprofBuilder
             ProfileId = ByteString.CopyFrom(profileByteId),
             TimeNanos = timestampNanoseconds,
         };
+
         var stringCache = new StringCache(Profile);
+
+        Profile.SampleType.Add(new ValueType
+        {
+            TypeStrindex = stringCache.GetOrAdd(sampleType),
+            UnitStrindex = stringCache.GetOrAdd(sampleUnit)
+        });
+
+        if (periodType != null && periodUnit != null)
+        {
+            Profile.PeriodType = new ValueType
+            {
+                TypeStrindex = stringCache.GetOrAdd(periodType),
+                UnitStrindex = stringCache.GetOrAdd(periodUnit)
+            };
+        }
+
+        if (period.HasValue)
+        {
+            Profile.Period = period.Value;
+        }
+
         var functionCache = new FunctionCache(Profile, stringCache);
-        _locationCache = new LocationCache(Profile, functionCache);
         _linkCache = new LinkCache(Profile);
         _attributeCache = new AttributeCache(Profile);
+        var profileFrameTypeAttributeId = _attributeCache.GetOrAdd("profile.frame.type", value => value.StringValue = "dotnet");
 
-        var profilingDataTypeAttributeId = _attributeCache.GetOrAdd("todo.profiling.data.type", value => value.StringValue = profilingDataType);
-        Profile.AttributeIndices.Add(profilingDataTypeAttributeId);
+        _locationCache = new LocationCache(Profile, functionCache, profileFrameTypeAttributeId);
     }
 
     public Profile Profile { get; }
@@ -90,7 +112,7 @@ internal class ExtendedPprofBuilder
         private readonly Profile _profile;
         private readonly StringCache _stringCache;
         private readonly Dictionary<string, int> _table = new();
-        private int _index = 1; // 0 is reserved
+        private int _index;
 
         public FunctionCache(Profile profile, StringCache stringCache)
         {
@@ -105,9 +127,15 @@ internal class ExtendedPprofBuilder
                 return value;
             }
 
-            // TODO How to handle SystemName in .NET
-            // TODO handle line number
-            var function = new Function { SystemNameStrindex = _stringCache.GetOrAdd("TODO How to handle SystemName in .NET?"), FilenameStrindex = _stringCache.GetOrAdd("unknown"), NameStrindex = _stringCache.GetOrAdd(functionName), }; // for now, we don't support file name
+            // TODO There is a plan to make SystemName, FileName and StartLine number optional, as all of them are not always available.
+            // TODO keeping a note here to double-check before going to production
+            var function = new Function
+            {
+                // SystemNameStrindex = _stringCache.GetOrAdd("TODO How to handle SystemName in .NET?"),
+                // FilenameStrindex = _stringCache.GetOrAdd("unknown"),
+                // StartLine = 0,
+                NameStrindex = _stringCache.GetOrAdd(functionName),
+            }; // for now, we don't support file name
 
             _profile.FunctionTable.Add(function);
             _table[functionName] = _index;
@@ -119,17 +147,20 @@ internal class ExtendedPprofBuilder
     {
         private readonly Profile _profile;
         private readonly FunctionCache _functionCache;
-        private int _index = 1; // 0 is reserved
+        private readonly int _profileFrameTypeAttributeId;
+        private int _index;
 
-        public LocationCache(Profile profile, FunctionCache functionCache)
+        public LocationCache(Profile profile, FunctionCache functionCache, int profileFrameTypeAttributeId)
         {
             _profile = profile;
             _functionCache = functionCache;
+            _profileFrameTypeAttributeId = profileFrameTypeAttributeId;
         }
 
         public int Add(string function)
         {
             var location = new Location();
+            location.AttributeIndices.Add(_profileFrameTypeAttributeId);
             location.Line.Add(new Line { FunctionIndex = _functionCache.GetOrAdd(function), Line_ = 0, Column = 0 }); // for now, we don't support line nor column number
 
             _profile.LocationTable.Add(location);
@@ -142,7 +173,7 @@ internal class ExtendedPprofBuilder
     {
         private readonly Profile _profile;
         private readonly Dictionary<Tuple<long, long, long>, int> _table = new();
-        private int _index = 1; // 0 is reserved
+        private int _index;
 
         public LinkCache(Profile profile)
         {
@@ -183,7 +214,7 @@ internal class ExtendedPprofBuilder
     {
         private readonly Profile _profile;
         private readonly Dictionary<KeyValue, int> _table = new();
-        private int _index = 1; // 0 is reserved
+        private int _index;
 
         public AttributeCache(Profile profile)
         {

@@ -4,6 +4,7 @@
 #if NET
 
 using IntegrationTests.Helpers;
+using OpenTelemetry.Proto.Collector.Profiles.V1Development;
 using OpenTelemetry.Proto.Profiles.V1Development;
 using Xunit.Abstractions;
 
@@ -25,10 +26,10 @@ public class ContinuousProfilerTests : TestHelper
         SetExporter(collector);
         SetEnvironmentVariable("OTEL_DOTNET_AUTO_PLUGINS", "TestApplication.ContinuousProfiler.AllocationPlugin, TestApplication.ContinuousProfiler, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null");
         SetEnvironmentVariable("OTEL_DOTNET_AUTO_TRACES_ADDITIONAL_SOURCES", "TestApplication.ContinuousProfiler");
-        RunTestApplication();
+        var (_, _, processId) = RunTestApplication();
 
-        collector.Expect(profileData => profileData.ResourceProfiles.Any(resourceProfiles => resourceProfiles.ScopeProfiles.Any(scopeProfile => scopeProfile.Profiles.Any(profile => ContainAttributes(profile, "allocation") && profile.Sample[0].Value[0] != 0.0))));
-        collector.ResourceExpector.Expect("todo.resource.detector.key", "todo.resource.detector.value");
+        collector.Expect(profileData => profileData.ResourceProfiles.Any(resourceProfiles => resourceProfiles.ScopeProfiles.Any(scopeProfile => scopeProfile.Profiles.Any(profile => ContainSampleType(profile, "allocations", "bytes") && profile.Sample[0].Value[0] != 0.0))));
+        collector.ResourceExpector.ExpectStandardResources(processId, "TestApplication.ContinuousProfiler");
 
         collector.AssertExpectations();
         collector.ResourceExpector.AssertExpectations();
@@ -43,20 +44,55 @@ public class ContinuousProfilerTests : TestHelper
         SetExporter(collector);
         SetEnvironmentVariable("OTEL_DOTNET_AUTO_PLUGINS", "TestApplication.ContinuousProfiler.ThreadPlugin, TestApplication.ContinuousProfiler, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null");
         SetEnvironmentVariable("OTEL_DOTNET_AUTO_TRACES_ADDITIONAL_SOURCES", "TestApplication.ContinuousProfiler");
-        RunTestApplication();
-
         var expectedStackTrace = string.Join("\n", CreateExpectedStackTrace());
 
-        collector.Expect(profileData => profileData.ResourceProfiles.Any(resourceProfiles => resourceProfiles.ScopeProfiles.Any(scopeProfile => scopeProfile.Profiles.Any(profile => ContainStackTraceForClassHierarchy(profile, expectedStackTrace) && ContainAttributes(profile, "cpu")))));
-        collector.ResourceExpector.Expect("todo.resource.detector.key", "todo.resource.detector.value");
+        collector.ExpectCollected(ExpectCollected, "Expect Collected failed");
+        collector.Expect(profileData => profileData.ResourceProfiles.Any(resourceProfiles => resourceProfiles.ScopeProfiles.Any(scopeProfile => scopeProfile.Profiles.Any(profile => ContainStackTraceForClassHierarchy(profile, expectedStackTrace) && ContainSampleType(profile, "samples", "count") && ContainPeriod(profile, "cpu", "nanoseconds", 1_000_000_000) && profile.Sample[0].Value[0] == 1))));
 
+        var (_, _, processId) = RunTestApplication();
+
+        collector.ResourceExpector.ExpectStandardResources(processId, "TestApplication.ContinuousProfiler");
+
+        collector.AssertCollected();
         collector.AssertExpectations();
         collector.ResourceExpector.AssertExpectations();
     }
 
-    private static bool ContainAttributes(Profile profileContainer, string profilingDataType)
+    private static bool ExpectCollected(ICollection<ExportProfilesServiceRequest> c)
     {
-        return profileContainer.AttributeTable.Any(x => x.Key == "todo.profiling.data.type" && x.Value.StringValue == profilingDataType);
+        var scopeProfiles = c.SelectMany(r => r.ResourceProfiles)
+            .SelectMany(rp => rp.ScopeProfiles).ToList();
+
+        Assert.All(scopeProfiles, sp => Assert.Equal("OpenTelemetry.AutoInstrumentation", sp.Scope.Name));
+
+        var profiles = scopeProfiles.SelectMany(sp => sp.Profiles).ToList();
+
+        foreach (var profile in profiles)
+        {
+            var attributeTable = profile.AttributeTable;
+
+            var attributeIndices = profiles.SelectMany(p => p.LocationTable).Select(l => l.AttributeIndices.Single());
+            if (!attributeIndices.All(index => attributeTable[index] is { Key: "profile.frame.type" }))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static bool ContainSampleType(Profile profile, string profilingSampleType, string profilingSampleUnit)
+    {
+        return profile.SampleType.Any(vt =>
+            profile.StringTable[vt.TypeStrindex] == profilingSampleType &&
+            profile.StringTable[vt.UnitStrindex] == profilingSampleUnit);
+    }
+
+    private static bool ContainPeriod(Profile profile, string profilingSampleType, string profilingSampleUnit, long period)
+    {
+        return profile.StringTable[profile.PeriodType.TypeStrindex] == profilingSampleType &&
+            profile.StringTable[profile.PeriodType.UnitStrindex] == profilingSampleUnit &&
+            profile.Period == period;
     }
 
     private static List<string> CreateExpectedStackTrace()
@@ -99,7 +135,7 @@ public class ContinuousProfilerTests : TestHelper
         var frames = profile.LocationTable
             .SelectMany(location => location.Line)
             .Select(line => line.FunctionIndex)
-            .Select(functionId => profile.FunctionTable[functionId - 1])
+            .Select(functionId => profile.FunctionTable[functionId])
             .Select(function => profile.StringTable[function.NameStrindex]);
 
         var stackTrace = string.Join("\n", frames);

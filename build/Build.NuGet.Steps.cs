@@ -51,8 +51,8 @@ partial class Build
             {
                 "bin-alpine-x64/linux-musl-x64",
                 "bin-alpine-arm64/linux-musl-arm64",
-                "bin-ubuntu-20.04/linux-x64",
-                "bin-otel-linux-arm64/linux-arm64",
+                "bin-ubuntu-22.04/linux-x64",
+                "bin-ubuntu-22.04-arm/linux-arm64",
                 "bin-macos-13/osx-x64",
                 "bin-windows-2022/win-x64",
                 "bin-windows-2022/win-x86"
@@ -180,14 +180,13 @@ partial class Build
 
             for (var i = 0; i < TestCount; i++)
             {
-                DotNetMSBuild(config => config
+                DotNetTest(config => config
                     .SetConfiguration(BuildConfiguration)
                     .SetFilter(AndFilter(TestNameFilter(), ContainersFilter()))
                     .SetBlameHangTimeout("5m")
                     .EnableTrxLogOutput(GetResultsDirectory(nugetPackagesTestProject))
-                    .SetTargetPath(nugetPackagesTestProject)
-                    .SetRestore(!NoRestore)
-                    .RunTests()
+                    .SetProjectFile(nugetPackagesTestProject)
+                    .SetNoRestore(NoRestore)
                 );
             }
         });

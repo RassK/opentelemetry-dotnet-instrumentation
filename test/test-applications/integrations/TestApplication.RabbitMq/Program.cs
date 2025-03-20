@@ -1,6 +1,7 @@
 // Copyright The OpenTelemetry Authors
 // SPDX-License-Identifier: Apache-2.0
 
+using System.Reflection;
 using System.Text;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
@@ -14,11 +15,10 @@ internal static class Program
     public static async Task Main(string[] args)
     {
         ConsoleHelper.WriteSplashScreen(args);
-        ConsoleHelper.WriteSplashScreen(args);
 
         var factory = new ConnectionFactory { HostName = "localhost", Port = int.Parse(GetRabbitMqPort(args)) };
-        using var connection = await factory.CreateConnectionAsync();
-        using var channel = await connection.CreateChannelAsync();
+        await using var connection = await factory.CreateConnectionAsync();
+        await using var channel = await connection.CreateChannelAsync();
 
         Console.WriteLine(channel.GetType().FullName);
 
@@ -171,7 +171,27 @@ internal static class Program
 
         asyncConsumersModel.BasicCancel(asyncConsumerTag);
 
+        if (!Close(asyncConsumersModel))
+        {
+            Console.WriteLine("Timed-out waiting for consumer to close.");
+            return 1;
+        }
+
         return 0;
+    }
+
+    private static bool Close(IModel asyncConsumersModel)
+    {
+        var delegateField = asyncConsumersModel.GetType().GetField("_delegate", BindingFlags.NonPublic | BindingFlags.Instance);
+        var delegateFieldValue = delegateField?.GetValue(asyncConsumersModel);
+        var closeMethod = delegateFieldValue?.GetType().GetMethod(
+            "Close",
+            BindingFlags.Instance | BindingFlags.Public,
+            null,
+            [typeof(ushort), typeof(string), typeof(bool)],
+            null);
+        var task = (Task)closeMethod?.Invoke(delegateFieldValue, [(ushort)200, "Goodbye", true])!;
+        return task.Wait(DefaultWaitTimeout);
     }
 
     private static void ProcessReceivedMessage(ReadOnlyMemory<byte> messageBody)

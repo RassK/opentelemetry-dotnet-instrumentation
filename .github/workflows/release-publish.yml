@@ -10,11 +10,11 @@ jobs:
     steps:
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@87b7050bc53ea08284295505d98d2aa94301e852 # tag: v4.2.0
+        uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # tag: v4.3.1
         with:
           dotnet-version: | 
-            8.0.404
-            9.0.101
+            8.0.407
+            9.0.202
             
       - name: Test the PowerShell module instructions from README.md
         shell: powershell
@@ -49,26 +49,21 @@ jobs:
         include:
           - machine: windows-2022
             log-dir: "/c/ProgramData/OpenTelemetry .NET AutoInstrumentation/logs"
-          - machine: ubuntu-20.04
+          - machine: ubuntu-22.04
             log-dir: "/var/log/opentelemetry/dotnet"
           - machine: macos-13
             log-dir: "/var/log/opentelemetry/dotnet"
-          - machine: otel-linux-arm64
+          - machine: ubuntu-22.04-arm
             log-dir: "/var/log/opentelemetry/dotnet"
     runs-on: ${{ matrix.machine }}
     steps:
-        
-      - name: Setup ARM64 Environment Variables
-        if: ${{ matrix.machine == 'otel-linux-arm64' }}
-        run: |
-          echo "DOTNET_INSTALL_DIR=~/.dotnet" >> $GITHUB_ENV
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@87b7050bc53ea08284295505d98d2aa94301e852 # tag: v4.2.0
+        uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # tag: v4.3.1
         with:
           dotnet-version: | 
-            8.0.404
-            9.0.101
+            8.0.407
+            9.0.202
 
       - name: Install MacOS CoreUtils
         if: ${{ runner.os == 'macOS' }}
@@ -99,10 +94,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - machine: ubuntu-20.04
+          - machine: ubuntu-22.04
             base-image: alpine
             net-version: net9.0
-          - machine: otel-linux-arm64
+          - machine: ubuntu-22.04-arm
             base-image: alpine
             net-version: net9.0
     runs-on: ${{ matrix.machine }}

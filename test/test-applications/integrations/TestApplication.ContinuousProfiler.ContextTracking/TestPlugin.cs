@@ -12,8 +12,8 @@ public class TestPlugin
         var allocationSamplingEnabled = false;
         var maxMemorySamplesPerMinute = 200u;
         var exportInterval = TimeSpan.FromMilliseconds(500);
-        var exportTimeout = TimeSpan.FromMilliseconds(500);
-        object continuousProfilerExporter = new OtlpOverHttpExporter();
+        var exportTimeout = TimeSpan.FromSeconds(5);
+        object continuousProfilerExporter = new OtlpOverHttpExporter(TimeSpan.FromMilliseconds(threadSamplingInterval));
 
         return Tuple.Create(threadSamplingEnabled, threadSamplingInterval, allocationSamplingEnabled, maxMemorySamplesPerMinute, exportInterval, exportTimeout, continuousProfilerExporter);
     }
