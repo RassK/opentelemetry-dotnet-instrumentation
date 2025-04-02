@@ -2,8 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 using System.Reflection;
-using FluentAssertions;
-using FluentAssertions.Execution;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -51,12 +49,9 @@ public class LoaderTests
             .Where(n => n != null && n.StartsWith("OpenTelemetry.AutoInstrumentation"))
             .ToList();
 
-        using (new AssertionScope())
-        {
-            otelAssemblies.Should().HaveCount(5);
-            otelAssemblies.Should().Contain("OpenTelemetry.AutoInstrumentation");
-            otelAssemblies.Should().Contain("OpenTelemetry.AutoInstrumentation.ByteCode");
-            otelAssemblies.Should().Contain("OpenTelemetry.AutoInstrumentation.Bridge");
-        }
+        Assert.Equal(5, otelAssemblies.Count);
+        Assert.Contains("OpenTelemetry.AutoInstrumentation", otelAssemblies);
+        Assert.Contains("OpenTelemetry.AutoInstrumentation.ByteCode", otelAssemblies);
+        Assert.Contains("OpenTelemetry.AutoInstrumentation.Bridge", otelAssemblies);
     }
 }
