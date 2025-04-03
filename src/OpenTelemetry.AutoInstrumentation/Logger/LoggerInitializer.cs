@@ -3,9 +3,11 @@
 
 #if NET
 
+using System.Runtime.CompilerServices;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using OpenTelemetry.AutoInstrumentation.Configurations;
+using OpenTelemetry.AutoInstrumentation.Plugins;
 using OpenTelemetry.Logs;
 
 namespace OpenTelemetry.AutoInstrumentation.Logger;
@@ -68,20 +70,10 @@ internal static class LoggerInitializer
                     switch (logExporter)
                     {
                         case LogExporter.Otlp:
-                            options.AddOtlpExporter(otlpOptions =>
-                            {
-                                // Copy Auto settings to SDK settings
-                                settings.OtlpSettings?.CopyTo(otlpOptions);
-
-                                pluginManager?.ConfigureLogsOptions(otlpOptions);
-                            });
+                            Wrappers.AddOtlpExporter(options, settings, pluginManager);
                             break;
                         case LogExporter.Console:
-                            if (pluginManager != null)
-                            {
-                                options.AddConsoleExporter(pluginManager.ConfigureLogsOptions);
-                            }
-
+                            Wrappers.AddConsoleExporter(options, pluginManager);
                             break;
                         default:
                             throw new ArgumentOutOfRangeException($"Logs exporter '{logExporter}' is incorrect");
@@ -96,6 +88,32 @@ internal static class LoggerInitializer
         {
             AutoInstrumentationEventSource.Log.Error($"Error in AddOpenTelemetryLogs: {ex}");
             throw;
+        }
+    }
+
+    private static class Wrappers
+    {
+        // Exporters
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        public static void AddConsoleExporter(OpenTelemetryLoggerOptions options, PluginManager? pluginManager)
+        {
+            if (pluginManager != null)
+            {
+                options.AddConsoleExporter(pluginManager.ConfigureLogsOptions);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        public static void AddOtlpExporter(OpenTelemetryLoggerOptions options, LogSettings settings, PluginManager? pluginManager)
+        {
+            options.AddOtlpExporter(otlpOptions =>
+            {
+                // Copy Auto settings to SDK settings
+                settings.OtlpSettings?.CopyTo(otlpOptions);
+
+                pluginManager?.ConfigureLogsOptions(otlpOptions);
+            });
         }
     }
 }
