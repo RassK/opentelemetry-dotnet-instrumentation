@@ -3,6 +3,8 @@
   OpenTelemetry.Api,
   OpenTelemetry.Api.ProviderBuilderExtensions,
   OpenTelemetry.AutoInstrumentation,
+  OpenTelemetry.AutoInstrumentation.Bridge,
+  OpenTelemetry.AutoInstrumentation.ByteCode,
   OpenTelemetry.AutoInstrumentation.Loader,
   OpenTelemetry.AutoInstrumentation.StartupHook,
   OpenTelemetry.Exporter.OpenTelemetryProtocol,

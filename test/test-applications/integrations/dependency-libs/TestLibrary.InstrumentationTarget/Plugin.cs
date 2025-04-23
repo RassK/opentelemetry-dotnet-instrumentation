@@ -1,7 +1,7 @@
 // Copyright The OpenTelemetry Authors
 // SPDX-License-Identifier: Apache-2.0
 
-using OpenTelemetry.AutoInstrumentation;
+using OpenTelemetry.AutoInstrumentation.ByteCode;
 using TestLibrary.InstrumentationTarget.StrongNamedValidation;
 
 namespace TestLibrary.InstrumentationTarget;

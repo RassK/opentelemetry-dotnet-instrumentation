@@ -1,6 +1,7 @@
 // Copyright The OpenTelemetry Authors
 // SPDX-License-Identifier: Apache-2.0
 
+using System.Reflection;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -43,10 +44,14 @@ public class LoaderTests
         // That means the assembly was loaded successfully and Initialize method was called.
         Assert.Null(exception);
 
-        var openTelemetryAutoInstrumentationAssembly = AppDomain.CurrentDomain.GetAssemblies()
-            .Select(a => a.FullName)
-            .FirstOrDefault(n => n != null && n.StartsWith("OpenTelemetry.AutoInstrumentation,"));
+        var otelAssemblies = AppDomain.CurrentDomain.GetAssemblies()
+            .Select(a => new AssemblyName(a.FullName!).Name)
+            .Where(n => n != null && n.StartsWith("OpenTelemetry.AutoInstrumentation"))
+            .ToList();
 
-        Assert.NotNull(openTelemetryAutoInstrumentationAssembly);
+        Assert.Equal(5, otelAssemblies.Count);
+        Assert.Contains("OpenTelemetry.AutoInstrumentation", otelAssemblies);
+        Assert.Contains("OpenTelemetry.AutoInstrumentation.ByteCode", otelAssemblies);
+        Assert.Contains("OpenTelemetry.AutoInstrumentation.Bridge", otelAssemblies);
     }
 }

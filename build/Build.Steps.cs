@@ -279,6 +279,16 @@ partial class Build
                     .SetFramework(framework)
                     .SetOutput(TracerHomeDirectory / MapToFolderOutput(framework))));
 
+            DotNetPublish(s => s
+                .SetProject(Solution.GetProjectByName(Projects.AutoInstrumentationByteCode))
+                .SetConfiguration(BuildConfiguration)
+                .SetTargetPlatformAnyCPU()
+                .EnableNoBuild()
+                .SetNoRestore(NoRestore)
+                .CombineWith(targetFrameworks, (p, framework) => p
+                    .SetFramework(framework)
+                    .SetOutput(TracerHomeDirectory / MapToFolderOutput(framework))));
+
             // StartupHook is supported starting .Net Core 3.1.
             // We need to emit AutoInstrumentationStartupHook for .Net Core 3.1 target framework
             // to avoid application crash with .Net Core 3.1 and .NET 5.0 apps.
@@ -318,11 +328,12 @@ partial class Build
     void RemoveNonLibraryFilesFromOutput()
     {
         TracerHomeDirectory.GlobFiles("**/*.xml").ForEach(file => file.DeleteFile());
-        (TracerHomeDirectory / "net").GlobFiles("*.json").ForEach(file => file.DeleteFile());
-        if (IsWin)
-        {
-            (TracerHomeDirectory / "netfx").GlobFiles("*.json").ForEach(file => file.DeleteFile());
-        }
+        // TODO: Remove or optimize ??
+        // (TracerHomeDirectory / "net").GlobFiles("*.json").ForEach(file => file.DeleteFile());
+        // if (IsWin)
+        // {
+        //     (TracerHomeDirectory / "netfx").GlobFiles("*.json").ForEach(file => file.DeleteFile());
+        // }
     }
 
     void RemoveFilesInNetFolderAvailableInAdditionalStore()
@@ -332,7 +343,7 @@ partial class Build
         var additionalStoreFolder = TracerHomeDirectory / "store";
 
         var netLibraries = netFolder.GlobFiles("**/*.dll");
-        var netLibrariesByName = netLibraries.ToDictionary(x => x.Name);
+        var netLibrariesByName = netLibraries.DistinctBy(x => x.Name).ToDictionary(x => x.Name);
         var additionalStoreLibraries = additionalStoreFolder.GlobFiles("**/*.dll");
 
         foreach (var additionalStoreLibrary in additionalStoreLibraries)
@@ -441,7 +452,18 @@ partial class Build
             }
 
             DotNetPublish(s => s
-                .SetProject(Solution.GetTestMock())
+                .SetProject(Solution.GetMainModuleTestMock())
+                .SetConfiguration(BuildConfiguration)
+                .SetTargetPlatformAnyCPU()
+                .EnableNoBuild()
+                .SetNoRestore(NoRestore)
+                .CombineWith(targetFrameworks, (p, framework) => p
+                    .SetFramework(framework)
+                    .SetOutput(TestsDirectory / Projects.Tests.AutoInstrumentationLoaderTests / "bin" / BuildConfiguration / "Profiler" / framework)));
+
+
+            DotNetPublish(s => s
+                .SetProject(Solution.GetByteCodeModuleTestMock())
                 .SetConfiguration(BuildConfiguration)
                 .SetTargetPlatformAnyCPU()
                 .EnableNoBuild()
@@ -457,6 +479,14 @@ partial class Build
         {
             DotNetBuild(x => x
                 .SetProjectFile(Solution.GetProjectByName(Projects.Mocks.AutoInstrumentationMock))
+                .SetConfiguration(BuildConfiguration)
+                .SetNoRestore(NoRestore)
+                .When(_ => TestTargetFramework != TargetFramework.NOT_SPECIFIED,
+                    s => s.SetFramework(TestTargetFramework))
+            );
+
+            DotNetBuild(x => x
+                .SetProjectFile(Solution.GetProjectByName(Projects.Mocks.AutoInstrumentationByteCodeMock))
                 .SetConfiguration(BuildConfiguration)
                 .SetNoRestore(NoRestore)
                 .When(_ => TestTargetFramework != TargetFramework.NOT_SPECIFIED,

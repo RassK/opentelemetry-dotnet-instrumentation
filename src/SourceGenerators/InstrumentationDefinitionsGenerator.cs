@@ -16,7 +16,7 @@ namespace SourceGenerators;
 [Generator]
 public class InstrumentationDefinitionsGenerator : IIncrementalGenerator
 {
-    private const string InstrumentMethodAttributeName = "OpenTelemetry.AutoInstrumentation.Instrumentations.InstrumentMethodAttribute";
+    private const string InstrumentMethodAttributeName = "OpenTelemetry.AutoInstrumentation.ByteCode.Instrumentations.InstrumentMethodAttribute";
     private const int IntegrationKindDirect = 0;
     private const int IntegrationKindDerived = 1;
 
@@ -149,7 +149,7 @@ public class InstrumentationDefinitionsGenerator : IIncrementalGenerator
 
 using OpenTelemetry.AutoInstrumentation.Configurations;
 
-namespace OpenTelemetry.AutoInstrumentation;
+namespace OpenTelemetry.AutoInstrumentation.ByteCode;
 
 internal static partial class InstrumentationDefinitions
 {{

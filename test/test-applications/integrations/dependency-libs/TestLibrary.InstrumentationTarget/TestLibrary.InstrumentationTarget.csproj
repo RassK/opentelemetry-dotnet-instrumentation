@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\..\src\OpenTelemetry.AutoInstrumentation\OpenTelemetry.AutoInstrumentation.csproj" />
+    <ProjectReference Include="..\..\..\..\..\src\OpenTelemetry.AutoInstrumentation.ByteCode\OpenTelemetry.AutoInstrumentation.ByteCode.csproj" />
   </ItemGroup>
 
 </Project>
