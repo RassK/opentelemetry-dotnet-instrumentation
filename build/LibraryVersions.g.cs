@@ -26,7 +26,7 @@ public static partial class LibraryVersion
             "TestApplication.Elasticsearch",
             [
                 new("8.15.10"),
-                new("9.4.2"),
+                new("9.5.0"),
             ]
         },
         {
@@ -36,7 +36,7 @@ public static partial class LibraryVersion
                 new("8.0.23"),
                 new("9.0.12"),
                 new("10.0.0", supportedFrameworks: [ "net10.0" ]),
-                new("10.0.9", supportedFrameworks: [ "net10.0" ]),
+                new("10.0.11", supportedFrameworks: [ "net10.0" ]),
             ]
         },
         {
@@ -60,7 +60,7 @@ public static partial class LibraryVersion
             "TestApplication.GrpcNetClient",
             [
                 new("2.52.0"),
-                new("2.67.0"),
+                new("2.83.0"),
             ]
         },
         {
@@ -76,7 +76,7 @@ public static partial class LibraryVersion
                 new("5.0.0", additionalMetaData: new() { { "NLogExtensionsLogging", "5.0.0" } }),
                 new("5.3.4", additionalMetaData: new() { { "NLogExtensionsLogging", "5.3.15" } }),
                 new("6.0.0", additionalMetaData: new() { { "NLogExtensionsLogging", "6.0.0" } }),
-                new("6.1.3", additionalMetaData: new() { { "NLogExtensionsLogging", "6.1.3" } }),
+                new("6.1.4", additionalMetaData: new() { { "NLogExtensionsLogging", "6.1.4" } }),
             ]
         },
         {
@@ -109,21 +109,21 @@ public static partial class LibraryVersion
                 new("3.0.0", supportedFrameworks: [ "net10.0", "net9.0", "net8.0", "net472" ]),
                 new("3.5.0", supportedFrameworks: [ "net10.0", "net9.0", "net8.0", "net472" ]),
                 new("3.7.0", supportedFrameworks: [ "net10.0", "net9.0", "net8.0", "net472" ]),
-                new("3.10.0", supportedFrameworks: [ "net10.0", "net9.0", "net8.0", "net472" ]),
+                new("3.11.0", supportedFrameworks: [ "net10.0", "net9.0", "net8.0", "net472" ]),
             ]
         },
         {
             "TestApplication.MySqlConnector",
             [
                 new("2.0.0"),
-                new("2.6.1"),
+                new("2.6.2"),
             ]
         },
         {
             "TestApplication.MySqlData",
             [
                 new("9.0.0"),
-                new("9.7.0"),
+                new("26.7.0"),
             ]
         },
         {
@@ -140,28 +140,28 @@ public static partial class LibraryVersion
                 new("8.2.6"),
                 new("9.2.10", supportedFrameworks: [ "net10.0", "net9.0", "net8.0" ]),
                 new("10.1.3", supportedFrameworks: [ "net10.0" ]),
-                new("10.2.7", supportedFrameworks: [ "net10.0" ]),
+                new("10.2.8", supportedFrameworks: [ "net10.0" ]),
             ]
         },
         {
             "TestApplication.OracleMda.NetFramework",
             [
                 new("23.5.1", supportedFrameworks: [ "net472" ]),
-                new("23.26.200", supportedFrameworks: [ "net472" ]),
+                new("23.26.300", supportedFrameworks: [ "net472" ]),
             ]
         },
         {
             "TestApplication.OracleMda.Core",
             [
                 new("23.5.1"),
-                new("23.26.200"),
+                new("23.26.300"),
             ]
         },
         {
             "TestApplication.Quartz",
             [
                 new("3.6.0"),
-                new("3.18.2"),
+                new("3.19.1"),
             ]
         },
         {
@@ -170,7 +170,7 @@ public static partial class LibraryVersion
                 new("5.1.2"),
                 new("6.8.1"),
                 new("7.0.0"),
-                new("7.2.1"),
+                new("7.2.2"),
             ]
         },
         {
@@ -179,7 +179,7 @@ public static partial class LibraryVersion
                 new("8.0.0"),
                 new("9.0.0"),
                 new("10.0.0"),
-                new("10.0.9"),
+                new("10.0.11"),
             ]
         },
         {
@@ -187,7 +187,9 @@ public static partial class LibraryVersion
             [
                 new("2.6.122"),
                 new("2.12.14"),
-                new("3.0.47-preview", supportedFrameworks: [ "net10.0", "net9.0", "net8.0" ]),
+                new("3.0.25", supportedFrameworks: [ "net10.0", "net9.0", "net8.0" ]),
+                new("3.1.0", supportedFrameworks: [ "net10.0", "net9.0", "net8.0" ]),
+                new("3.1.13", supportedFrameworks: [ "net10.0", "net9.0", "net8.0" ]),
             ]
         },
         {
@@ -214,7 +216,7 @@ public static partial class LibraryVersion
                 new("9.0.0", supportedFrameworks: [ "net9.0" ]),
                 new("6.0.0", supportedFrameworks: [ "net462" ]),
                 new("10.0.0", supportedFrameworks: [ "net8.0", "net9.0" ]),
-                new("10.0.9", supportedFrameworks: [ "net462", "net10.0" ]),
+                new("10.0.11", supportedFrameworks: [ "net462", "net10.0" ]),
             ]
         },
         {
