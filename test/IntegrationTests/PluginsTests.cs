@@ -105,6 +105,7 @@ public class PluginsTests : TestHelper
         var (standardOutput, _, _) = RunTestApplication();
 
         Assert.Contains("Plugin.ConfigureOpAmpOptions() invoked.", standardOutput, StringComparison.Ordinal);
+        Assert.Contains("Plugin.ConfigurePluginCapabilities() invoked.", standardOutput, StringComparison.Ordinal);
         Assert.Contains("Plugin.AfterOpAmpClientStarted() invoked.", standardOutput, StringComparison.Ordinal);
         Assert.Contains("Plugin.BeforeOpAmpClientStopped() invoked.", standardOutput, StringComparison.Ordinal);
     }
