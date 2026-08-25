@@ -20,13 +20,20 @@ public partial class Plugin : IPlugin, IOpAmpPlugin
         Console.WriteLine($"{nameof(Plugin)}.{nameof(ConfigureOpAmpOptions)}() invoked.");
     }
 
-    public void AfterOpAmpClientStarted(OpAmpClient client)
-    {
-        Console.WriteLine($"{nameof(Plugin)}.{nameof(AfterOpAmpClientStarted)}() invoked.");
-    }
-
     public void BeforeOpAmpClientStopped()
     {
         Console.WriteLine($"{nameof(Plugin)}.{nameof(BeforeOpAmpClientStopped)}() invoked.");
+    }
+
+    public OpAmpPluginCapabilities ConfigurePluginCapabilities()
+    {
+        Console.WriteLine($"{nameof(Plugin)}.{nameof(ConfigurePluginCapabilities)}() invoked.");
+
+        return OpAmpPluginCapabilities.None;
+    }
+
+    public void AfterOpAmpClientStarted(IOpAmpClient client)
+    {
+        Console.WriteLine($"{nameof(Plugin)}.{nameof(AfterOpAmpClientStarted)}() invoked.");
     }
 }

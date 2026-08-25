@@ -8,6 +8,7 @@ using OpenTelemetry.AutoInstrumentation.Diagnostics;
 using OpenTelemetry.AutoInstrumentation.Instrumentations.NoCode;
 using OpenTelemetry.AutoInstrumentation.Loading;
 using OpenTelemetry.AutoInstrumentation.Logging;
+using OpenTelemetry.AutoInstrumentation.OpAmp;
 using OpenTelemetry.AutoInstrumentation.PluginApi.ContinuousProfiling;
 using OpenTelemetry.AutoInstrumentation.PluginApi.SelectiveSampling;
 using OpenTelemetry.AutoInstrumentation.Plugins;
@@ -228,7 +229,7 @@ internal static class Instrumentation
         {
             var resources = ResourceHelper.AggregateResources(_tracerProvider, _meterProvider, LoggerProvider);
 
-            OpAmpHelper.EnableOpAmpClient(resources, OpAmpSettings.Value, _pluginManager);
+            OpAmpLoader.EnableOpAmpClient(resources, OpAmpSettings.Value, _pluginManager);
         }
 
         // Notify plugins all initialization is done
@@ -568,7 +569,7 @@ internal static class Instrumentation
 
         try
         {
-            OpAmpHelper.StopOpAmpClientIfRunning(_pluginManager);
+            OpAmpLoader.StopOpAmpClientIfRunning();
 
             LazyInstrumentationLoader?.Dispose();
             _sampleExporter?.Dispose();

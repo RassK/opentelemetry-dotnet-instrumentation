@@ -23,9 +23,18 @@ OpenTelemetry.AutoInstrumentation.PluginApi.IPlugin
 OpenTelemetry.AutoInstrumentation.PluginApi.IPlugin.Initialized() -> void
 OpenTelemetry.AutoInstrumentation.PluginApi.IPlugin.Initializing() -> void
 OpenTelemetry.AutoInstrumentation.PluginApi.OpAmp.IOpAmpPlugin
-OpenTelemetry.AutoInstrumentation.PluginApi.OpAmp.IOpAmpPlugin.AfterOpAmpClientStarted(OpenTelemetry.OpAmp.Client.OpAmpClient! client) -> void
+OpenTelemetry.AutoInstrumentation.PluginApi.OpAmp.IOpAmpPlugin.AfterOpAmpClientStarted(OpenTelemetry.AutoInstrumentation.PluginApi.OpAmp.IOpAmpClient! client) -> void
 OpenTelemetry.AutoInstrumentation.PluginApi.OpAmp.IOpAmpPlugin.BeforeOpAmpClientStopped() -> void
 OpenTelemetry.AutoInstrumentation.PluginApi.OpAmp.IOpAmpPlugin.ConfigureOpAmpOptions(OpenTelemetry.OpAmp.Client.Settings.OpAmpClientSettings! settings) -> void
+OpenTelemetry.AutoInstrumentation.PluginApi.OpAmp.IOpAmpPlugin.ConfigurePluginCapabilities() -> OpenTelemetry.AutoInstrumentation.PluginApi.OpAmp.OpAmpPluginCapabilities
+OpenTelemetry.AutoInstrumentation.PluginApi.OpAmp.IProvideEffectiveConfig
+OpenTelemetry.AutoInstrumentation.PluginApi.OpAmp.IProvideEffectiveConfig.OnEffectiveConfigRequested() -> System.Collections.Generic.IEnumerable<OpenTelemetry.OpAmp.Client.Messages.EffectiveConfigFile!>!
+OpenTelemetry.AutoInstrumentation.PluginApi.OpAmp.IProvideRemoteConfigStatus
+OpenTelemetry.AutoInstrumentation.PluginApi.OpAmp.IProvideRemoteConfigStatus.OnRemoteConfigStatusRequested() -> OpenTelemetry.OpAmp.Client.Messages.RemoteConfigStatusReport!
+OpenTelemetry.AutoInstrumentation.PluginApi.OpAmp.OpAmpPluginCapabilities
+OpenTelemetry.AutoInstrumentation.PluginApi.OpAmp.OpAmpPluginCapabilities.None = 0 -> OpenTelemetry.AutoInstrumentation.PluginApi.OpAmp.OpAmpPluginCapabilities
+OpenTelemetry.AutoInstrumentation.PluginApi.OpAmp.OpAmpPluginCapabilities.ReportsEffectiveConfig = 1 -> OpenTelemetry.AutoInstrumentation.PluginApi.OpAmp.OpAmpPluginCapabilities
+OpenTelemetry.AutoInstrumentation.PluginApi.OpAmp.OpAmpPluginCapabilities.ReportsRemoteConfigStatus = 2 -> OpenTelemetry.AutoInstrumentation.PluginApi.OpAmp.OpAmpPluginCapabilities
 OpenTelemetry.AutoInstrumentation.PluginApi.SelectiveSampling.ISelectiveSamplerExporter
 OpenTelemetry.AutoInstrumentation.PluginApi.SelectiveSampling.ISelectiveSamplerExporter.ExportSelectedThreadSamples(byte[]! buffer, int read, System.Threading.CancellationToken cancellationToken) -> void
 OpenTelemetry.AutoInstrumentation.PluginApi.SelectiveSampling.ISelectiveSamplerPlugin
