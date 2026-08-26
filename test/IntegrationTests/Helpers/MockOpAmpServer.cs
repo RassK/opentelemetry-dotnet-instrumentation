@@ -154,6 +154,11 @@ internal sealed class MockOpAmpServer : IDisposable
     private static byte[] GenerateResponse(AgentToServer frame)
     {
         var content = "This is a mock server frame for testing purposes.";
+        var capabilities =
+            ServerCapabilities.AcceptsStatus |
+            ServerCapabilities.AcceptsEffectiveConfig |
+            ServerCapabilities.OffersRemoteConfig;
+
         var responseFrame = new ServerToAgent
         {
             InstanceUid = frame.InstanceUid,
@@ -162,6 +167,7 @@ internal sealed class MockOpAmpServer : IDisposable
                 Data = ByteString.CopyFromUtf8(content),
                 Type = "Utf8String",
             },
+            Capabilities = (ulong)capabilities
         };
 
         return responseFrame.ToByteArray();

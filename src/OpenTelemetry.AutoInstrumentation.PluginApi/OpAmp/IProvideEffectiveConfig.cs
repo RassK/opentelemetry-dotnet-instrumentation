@@ -8,7 +8,7 @@ namespace OpenTelemetry.AutoInstrumentation.PluginApi.OpAmp;
 /// <summary>
 /// Adds support for plugins to provide effective configuration
 /// </summary>
-public interface IProvideEffectiveConfig : IOpAmpClient
+public interface IProvideEffectiveConfig : IOpAmpPlugin
 {
     /// <summary>
     /// Requests plugin to generate effective configuration.

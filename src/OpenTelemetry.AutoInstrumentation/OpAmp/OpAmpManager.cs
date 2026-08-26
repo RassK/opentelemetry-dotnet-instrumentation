@@ -3,6 +3,7 @@
 
 using OpenTelemetry.AutoInstrumentation.Configurations;
 using OpenTelemetry.AutoInstrumentation.Logging;
+using OpenTelemetry.AutoInstrumentation.OpAmp.Listeners;
 using OpenTelemetry.AutoInstrumentation.PluginApi.OpAmp;
 using OpenTelemetry.AutoInstrumentation.Plugins;
 using OpenTelemetry.OpAmp.Client;
@@ -26,10 +27,14 @@ internal class OpAmpManager : IDisposable
     private OpAmpPluginCapabilities _pluginCapabilities;
     private IEnumerable<string>? _serverCustomCapabilities;
     private IEnumerable<string>? _clientCustomCapabilities;
+    private CapabilitiesListener _capabilitiesListener;
+    private FlagsMessageListener _flagsListener;
 
     public OpAmpManager(PluginManager pluginManager)
     {
         _pluginManager = pluginManager;
+        _capabilitiesListener = new CapabilitiesListener(this);
+        _flagsListener = new FlagsMessageListener(this);
     }
 
     public bool IsRunning { get; private set; }
@@ -40,6 +45,10 @@ internal class OpAmpManager : IDisposable
         {
             _client = new OpAmpClient(settings => ConfigureClient(settings, opAmpSettings, resources));
             _pluginClient = new PluginOpAmpClient(this);
+
+            _client.Subscribe<ServerCapabilitiesMessage>(_capabilitiesListener);
+            _client.Subscribe<CustomCapabilitiesMessage>(_capabilitiesListener);
+            _client.Subscribe(_flagsListener);
 
             try
             {
@@ -80,6 +89,10 @@ internal class OpAmpManager : IDisposable
 
             if (_client != null)
             {
+                _client.Unsubscribe<ServerCapabilitiesMessage>(_capabilitiesListener);
+                _client.Unsubscribe<CustomCapabilitiesMessage>(_capabilitiesListener);
+                _client.Unsubscribe(_flagsListener);
+
                 await _client.StopAsync()
                     .ConfigureAwait(false);
             }

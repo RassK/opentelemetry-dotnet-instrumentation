@@ -3,7 +3,7 @@
 
 using OpenTelemetry.AutoInstrumentation.PluginApi;
 using OpenTelemetry.AutoInstrumentation.PluginApi.OpAmp;
-using OpenTelemetry.OpAmp.Client;
+using OpenTelemetry.OpAmp.Client.Messages;
 using OpenTelemetry.OpAmp.Client.Settings;
 
 namespace TestApplication.Plugins;
@@ -12,7 +12,7 @@ namespace TestApplication.Plugins;
 /// <summary>
 /// OpAMP extensions of the plugin.
 /// </summary>
-public partial class Plugin : IPlugin, IOpAmpPlugin
+public partial class Plugin : IPlugin, IOpAmpPlugin, IProvideEffectiveConfig, IProvideRemoteConfigStatus
 #pragma warning restore CA1515 // Consider making public types internal. Needed for AutoInstrumentation plugin loading.
 {
     public void ConfigureOpAmpOptions(OpAmpClientSettings settings)
@@ -29,11 +29,26 @@ public partial class Plugin : IPlugin, IOpAmpPlugin
     {
         Console.WriteLine($"{nameof(Plugin)}.{nameof(ConfigurePluginCapabilities)}() invoked.");
 
-        return OpAmpPluginCapabilities.None;
+        return OpAmpPluginCapabilities.ReportsEffectiveConfig |
+            OpAmpPluginCapabilities.ReportsRemoteConfigStatus;
     }
 
     public void AfterOpAmpClientStarted(IOpAmpClient client)
     {
         Console.WriteLine($"{nameof(Plugin)}.{nameof(AfterOpAmpClientStarted)}() invoked.");
+    }
+
+    public IEnumerable<EffectiveConfigFile> OnEffectiveConfigRequested()
+    {
+        Console.WriteLine($"{nameof(Plugin)}.{nameof(OnEffectiveConfigRequested)}() invoked.");
+
+        return [];
+    }
+
+    public RemoteConfigStatusReport OnRemoteConfigStatusRequested()
+    {
+        Console.WriteLine($"{nameof(Plugin)}.{nameof(OnRemoteConfigStatusRequested)}() invoked.");
+
+        return new RemoteConfigStatusReport("temporary"u8, RemoteConfigStatusCode.Unset);
     }
 }
