@@ -214,6 +214,7 @@ internal static class Instrumentation
             }
 
             RegisterBytecodeDerivedInstrumentations(InstrumentationDefinitions.GetDerivedDefinitions());
+            RegisterBytecodeInterfaceInstrumentations(InstrumentationDefinitions.GetInterfaceDefinitions());
         }
         else
         {
@@ -415,6 +416,11 @@ internal static class Instrumentation
         RegisterBytecodeInstrumentations(payload, "derived", NativeMethods.AddDerivedInstrumentations);
     }
 
+    private static void RegisterBytecodeInterfaceInstrumentations(InstrumentationDefinitions.Payload payload)
+    {
+        RegisterBytecodeInstrumentations(payload, "interface", NativeMethods.AddInterfaceInstrumentations);
+    }
+
     private static void RegisterBytecodeInstrumentations(InstrumentationDefinitions.Payload payload, string type, Action<string, NativeCallTargetDefinition[]> register)
     {
         try
@@ -465,6 +471,10 @@ internal static class Instrumentation
                 case MetricInstrumentation.SqlClient:
                     DelayedInitialization.Metrics.AddSqlClient(lazyInstrumentationLoader, pluginManager);
                     break;
+#if NET
+                case MetricInstrumentation.Quartz:
+                    break;
+#endif
                 default:
                     Logger.Warning($"Configured metric instrumentation type is not supported: {instrumentation}");
                     if (FailFastSettings.Value.FailFast)

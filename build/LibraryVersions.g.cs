@@ -5,7 +5,7 @@
 //     re-run the LibraryVersionsGenerator project in Visual Studio.
 // 
 //     Changes to this file may cause incorrect behavior and will be lost if
-//     the code is regenerated. 
+//     the code is regenerated.
 // </auto-generated>
 //------------------------------------------------------------------------------
 
@@ -26,7 +26,7 @@ public static partial class LibraryVersion
             "TestApplication.Elasticsearch",
             [
                 new("8.15.10"),
-                new("9.5.0"),
+                new("9.5.2"),
             ]
         },
         {
@@ -36,7 +36,7 @@ public static partial class LibraryVersion
                 new("8.0.23"),
                 new("9.0.12"),
                 new("10.0.0", supportedFrameworks: [ "net10.0" ]),
-                new("10.0.11", supportedFrameworks: [ "net10.0" ]),
+                new("10.0.12", supportedFrameworks: [ "net10.0" ]),
             ]
         },
         {
@@ -53,21 +53,21 @@ public static partial class LibraryVersion
             [
                 new("7.5.0", additionalMetaData: new() { { "GraphQLMicrosoftDI", "7.5.0" }, { "GraphQLServerTransportsAspNetCore", "7.5.0" }, { "GraphQLServerUIGraphiQL", "7.5.0" } }),
                 new("8.0.2", additionalMetaData: new() { { "GraphQLMicrosoftDI", "8.0.2" }, { "GraphQLServerTransportsAspNetCore", "8.0.2" }, { "GraphQLServerUIGraphiQL", "8.0.2" } }),
-                new("8.8.4", additionalMetaData: new() { { "GraphQLMicrosoftDI", "8.8.4" }, { "GraphQLServerTransportsAspNetCore", "8.3.3" }, { "GraphQLServerUIGraphiQL", "8.3.3" } }),
+                new("8.8.5", additionalMetaData: new() { { "GraphQLMicrosoftDI", "8.8.5" }, { "GraphQLServerTransportsAspNetCore", "8.3.3" }, { "GraphQLServerUIGraphiQL", "8.3.3" } }),
             ]
         },
         {
             "TestApplication.GrpcNetClient",
             [
                 new("2.52.0"),
-                new("2.83.0"),
+                new("2.84.0"),
             ]
         },
         {
             "TestApplication.Log4NetBridge",
             [
                 new("3.3.0"),
-                new("3.3.2"),
+                new("3.4.0"),
             ]
         },
         {
@@ -76,7 +76,7 @@ public static partial class LibraryVersion
                 new("5.0.0", additionalMetaData: new() { { "NLogExtensionsLogging", "5.0.0" } }),
                 new("5.3.4", additionalMetaData: new() { { "NLogExtensionsLogging", "5.3.15" } }),
                 new("6.0.0", additionalMetaData: new() { { "NLogExtensionsLogging", "6.0.0" } }),
-                new("6.1.4", additionalMetaData: new() { { "NLogExtensionsLogging", "6.1.4" } }),
+                new("6.2.1", additionalMetaData: new() { { "NLogExtensionsLogging", "6.2.1" } }),
             ]
         },
         {
@@ -91,7 +91,7 @@ public static partial class LibraryVersion
             [
                 new("5.2.3"),
                 new("6.1.5"),
-                new("7.0.2"),
+                new("7.1.0"),
             ]
         },
         {
@@ -109,7 +109,7 @@ public static partial class LibraryVersion
                 new("3.0.0", supportedFrameworks: [ "net10.0", "net9.0", "net8.0", "net472" ]),
                 new("3.5.0", supportedFrameworks: [ "net10.0", "net9.0", "net8.0", "net472" ]),
                 new("3.7.0", supportedFrameworks: [ "net10.0", "net9.0", "net8.0", "net472" ]),
-                new("3.11.0", supportedFrameworks: [ "net10.0", "net9.0", "net8.0", "net472" ]),
+                new("3.12.0", supportedFrameworks: [ "net10.0", "net9.0", "net8.0", "net472" ]),
             ]
         },
         {
@@ -140,28 +140,30 @@ public static partial class LibraryVersion
                 new("8.2.6"),
                 new("9.2.10", supportedFrameworks: [ "net10.0", "net9.0", "net8.0" ]),
                 new("10.1.3", supportedFrameworks: [ "net10.0" ]),
-                new("10.2.8", supportedFrameworks: [ "net10.0" ]),
+                new("10.2.9", supportedFrameworks: [ "net10.0" ]),
             ]
         },
         {
             "TestApplication.OracleMda.NetFramework",
             [
                 new("23.5.1", supportedFrameworks: [ "net472" ]),
-                new("23.26.300", supportedFrameworks: [ "net472" ]),
+                new("23.26.301", supportedFrameworks: [ "net472" ]),
             ]
         },
         {
             "TestApplication.OracleMda.Core",
             [
                 new("23.5.1"),
-                new("23.26.300"),
+                new("23.26.301"),
             ]
         },
         {
             "TestApplication.Quartz",
             [
                 new("3.6.0"),
-                new("3.19.1"),
+                new("3.22.0"),
+                new("4.0.0", supportedFrameworks: [ "net10.0" ]),
+                new("4.2.2", supportedFrameworks: [ "net10.0" ]),
             ]
         },
         {
@@ -179,7 +181,7 @@ public static partial class LibraryVersion
                 new("8.0.0"),
                 new("9.0.0"),
                 new("10.0.0"),
-                new("10.0.11"),
+                new("10.0.12"),
             ]
         },
         {
@@ -189,7 +191,8 @@ public static partial class LibraryVersion
                 new("2.12.14"),
                 new("3.0.25", supportedFrameworks: [ "net10.0", "net9.0", "net8.0" ]),
                 new("3.1.0", supportedFrameworks: [ "net10.0", "net9.0", "net8.0" ]),
-                new("3.1.13", supportedFrameworks: [ "net10.0", "net9.0", "net8.0" ]),
+                new("3.3.0", supportedFrameworks: [ "net10.0", "net9.0", "net8.0" ]),
+                new("3.3.1", supportedFrameworks: [ "net10.0", "net9.0", "net8.0" ]),
             ]
         },
         {
@@ -206,7 +209,7 @@ public static partial class LibraryVersion
             [
                 new("1.8.2"),
                 new("1.9.2"),
-                new("2.15.0"),
+                new("2.15.1"),
             ]
         },
         {
@@ -216,7 +219,7 @@ public static partial class LibraryVersion
                 new("9.0.0", supportedFrameworks: [ "net9.0" ]),
                 new("6.0.0", supportedFrameworks: [ "net462" ]),
                 new("10.0.0", supportedFrameworks: [ "net8.0", "net9.0" ]),
-                new("10.0.11", supportedFrameworks: [ "net462", "net10.0" ]),
+                new("10.0.12", supportedFrameworks: [ "net462", "net10.0" ]),
             ]
         },
         {

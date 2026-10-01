@@ -18,22 +18,22 @@ env:
 
 jobs:
   build-ubuntu1604-native:
-    uses: ./.github/workflows/build-ubuntu1604-native-container.yml
+    uses: $/.github/workflows/build-ubuntu1604-native-container.yml
 
   build-windows:
-    uses: ./.github/workflows/build-windows.yml
+    uses: $/.github/workflows/build-windows.yml
 
   build:
     needs: [ build-windows, build-ubuntu1604-native ]
-    uses: ./.github/workflows/build.yml
+    uses: $/.github/workflows/build.yml
 
   build-nuget-packages:
     needs: [ build-windows, build ]
-    uses: ./.github/workflows/build-nuget-packages.yml
+    uses: $/.github/workflows/build-nuget-packages.yml
 
   create-release:
     name: Create GitHub release
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     needs: [ build-windows, build, build-nuget-packages ]
     permissions:
       attestations: write # for actions/attest to create release attestations
@@ -82,7 +82,7 @@ jobs:
           done
 
       - name: Generate SBOM from release ZIPs
-        uses: anchore/sbom-action@e22c389904149dbc22b58101806040fa8d37a610 # v0.24.0
+        uses: anchore/sbom-action@3ad7283483fc7af8ff2b4ea19663c2d5ca935e26 # v0.24.2
         with:
           output-file: ./sbom.spdx.json
           path: ${{ runner.temp }}/sbom-source

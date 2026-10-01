@@ -5,7 +5,7 @@
 //     compile project.
 
 //     Changes to this file may cause incorrect behavior and will be lost if
-//     the code is regenerated. 
+//     the code is regenerated.
 // </auto-generated>
 //------------------------------------------------------------------------------
 
@@ -17,7 +17,7 @@ internal static partial class InstrumentationDefinitions
 {
     private static NativeCallTargetDefinition[] GetDefinitionsArray()
     {
-        var nativeCallTargetDefinitions = new List<NativeCallTargetDefinition>(59);
+        var nativeCallTargetDefinitions = new List<NativeCallTargetDefinition>(68);
         // Traces
         var tracerSettings = Instrumentation.TracerSettings.Value;
         if (tracerSettings.TracesEnabled)
@@ -74,6 +74,19 @@ internal static partial class InstrumentationDefinitions
                 nativeCallTargetDefinitions.Add(new("MongoDB.Driver", "MongoDB.Driver.Core.WireProtocol.CommandWireProtocol`1", "ExecuteAsync", ["System.Threading.Tasks.Task`1[!0]", "MongoDB.Driver.OperationContext", "MongoDB.Driver.Core.Connections.IConnection"], 3, 5, 0, 3, 6, 65535, AssemblyFullName, "OpenTelemetry.AutoInstrumentation.Instrumentations.MongoDB.Integrations.MongoClientIntegrationExecuteAsync35"));
             }
 
+            // Npgsql
+            if (tracerSettings.EnabledInstrumentations.Contains(TracerInstrumentation.Npgsql))
+            {
+                nativeCallTargetDefinitions.Add(new("Npgsql", "Npgsql.NpgsqlCommand", "TraceCommandStart", ["System.Void", "Npgsql.Internal.NpgsqlConnector"], 6, 0, 0, 6, 0, 11, AssemblyFullName, "OpenTelemetry.AutoInstrumentation.Instrumentations.Npgsql.Integrations.NpgsqlCommandTraceContextPropagationIntegration"));
+                nativeCallTargetDefinitions.Add(new("Npgsql", "Npgsql.NpgsqlCommand", "TraceCommandEnrich", ["System.Void", "Npgsql.Internal.NpgsqlConnector"], 6, 0, 12, 6, 65535, 65535, AssemblyFullName, "OpenTelemetry.AutoInstrumentation.Instrumentations.Npgsql.Integrations.NpgsqlCommandTraceContextPropagationIntegration"));
+                nativeCallTargetDefinitions.Add(new("Npgsql", "Npgsql.NpgsqlCommand", "TraceCommandStart", ["System.Void", "Npgsql.Internal.NpgsqlConnector"], 7, 0, 0, 7, 0, 7, AssemblyFullName, "OpenTelemetry.AutoInstrumentation.Instrumentations.Npgsql.Integrations.NpgsqlCommandTraceContextPropagationIntegration"));
+                nativeCallTargetDefinitions.Add(new("Npgsql", "Npgsql.NpgsqlCommand", "TraceCommandEnrich", ["System.Void", "Npgsql.Internal.NpgsqlConnector"], 7, 0, 8, 7, 65535, 65535, AssemblyFullName, "OpenTelemetry.AutoInstrumentation.Instrumentations.Npgsql.Integrations.NpgsqlCommandTraceContextPropagationIntegration"));
+                nativeCallTargetDefinitions.Add(new("Npgsql", "Npgsql.NpgsqlCommand", "TraceCommandStart", ["System.Void", "Npgsql.Internal.NpgsqlConnector"], 8, 0, 0, 8, 0, 3, AssemblyFullName, "OpenTelemetry.AutoInstrumentation.Instrumentations.Npgsql.Integrations.NpgsqlCommandTraceContextPropagationIntegration"));
+                nativeCallTargetDefinitions.Add(new("Npgsql", "Npgsql.NpgsqlCommand", "TraceCommandEnrich", ["System.Void", "Npgsql.Internal.NpgsqlConnector"], 8, 0, 4, 10, 65535, 65535, AssemblyFullName, "OpenTelemetry.AutoInstrumentation.Instrumentations.Npgsql.Integrations.NpgsqlCommandTraceContextPropagationIntegration"));
+                nativeCallTargetDefinitions.Add(new("Npgsql", "Npgsql.Internal.NpgsqlConnector", "EndUserAction", ["System.Void"], 6, 0, 0, 10, 65535, 65535, AssemblyFullName, "OpenTelemetry.AutoInstrumentation.Instrumentations.Npgsql.Integrations.NpgsqlConnectorEndUserActionTraceContextPropagationIntegration"));
+                nativeCallTargetDefinitions.Add(new("Npgsql", "Npgsql.Internal.NpgsqlConnector", "TraceCopyStart", ["System.Diagnostics.Activity", "System.String", "System.String"], 10, 0, 0, 10, 65535, 65535, AssemblyFullName, "OpenTelemetry.AutoInstrumentation.Instrumentations.Npgsql.Integrations.NpgsqlCopyTraceContextPropagationIntegration"));
+            }
+
             // NServiceBus
             if (tracerSettings.EnabledInstrumentations.Contains(TracerInstrumentation.NServiceBus))
             {
@@ -103,6 +116,7 @@ internal static partial class InstrumentationDefinitions
                 nativeCallTargetDefinitions.Add(new("StackExchange.Redis", "StackExchange.Redis.ConnectionMultiplexer", "ConnectImpl", ["StackExchange.Redis.ConnectionMultiplexer", "StackExchange.Redis.ConfigurationOptions", "System.IO.TextWriter", "System.Nullable`1[StackExchange.Redis.ServerType]", "StackExchange.Redis.EndPointCollection"], 2, 0, 0, 3, 65535, 65535, AssemblyFullName, "OpenTelemetry.AutoInstrumentation.Instrumentations.StackExchangeRedis.StackExchangeRedisIntegration"));
                 nativeCallTargetDefinitions.Add(new("StackExchange.Redis", "StackExchange.Redis.ConnectionMultiplexer", "ConnectImplAsync", ["System.Threading.Tasks.Task`1[StackExchange.Redis.ConnectionMultiplexer]", "StackExchange.Redis.ConfigurationOptions", "System.IO.TextWriter", "System.Nullable`1[StackExchange.Redis.ServerType]"], 2, 0, 0, 3, 65535, 65535, AssemblyFullName, "OpenTelemetry.AutoInstrumentation.Instrumentations.StackExchangeRedis.StackExchangeRedisIntegrationAsync"));
                 nativeCallTargetDefinitions.Add(new("StackExchange.Redis", "StackExchange.Redis.ConnectionMultiplexer", "ConnectImplAsync", ["System.Threading.Tasks.Task`1[StackExchange.Redis.ConnectionMultiplexer]", "StackExchange.Redis.ConfigurationOptions", "System.IO.TextWriter", "System.Nullable`1[StackExchange.Redis.ServerType]", "StackExchange.Redis.Availability.CircuitBreaker"], 3, 0, 0, 3, 65535, 65535, AssemblyFullName, "OpenTelemetry.AutoInstrumentation.Instrumentations.StackExchangeRedis.StackExchangeRedisIntegrationAsync"));
+                nativeCallTargetDefinitions.Add(new("StackExchange.Redis", "StackExchange.Redis.ConnectionMultiplexer", "ConnectImplAsync", ["System.Threading.Tasks.Task`1[StackExchange.Redis.ConnectionMultiplexer]", "StackExchange.Redis.ConfigurationOptions", "System.IO.TextWriter", "System.Nullable`1[StackExchange.Redis.ServerType]", "StackExchange.Redis.Availability.CircuitBreaker", "System.Boolean"], 3, 0, 0, 3, 65535, 65535, AssemblyFullName, "OpenTelemetry.AutoInstrumentation.Instrumentations.StackExchangeRedis.StackExchangeRedisIntegrationAsync"));
             }
 
             // WcfClient

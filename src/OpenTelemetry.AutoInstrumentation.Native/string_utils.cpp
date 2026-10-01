@@ -26,23 +26,27 @@ std::string ToString(const uint64_t i)
 }
 std::string ToString(const WSTRING& wstr)
 {
+    return ToString(wstr.data(), wstr.size());
+}
+std::string ToString(const WCHAR* wstr, std::size_t nbChars)
+{
 #ifdef _WIN32
-    if (wstr.empty())
+    if (nbChars == 0)
         return std::string();
 
     std::string tmpStr(tmp_buffer_size, 0);
-    int         size_needed =
-        WideCharToMultiByte(CP_UTF8, 0, &wstr[0], (int)wstr.size(), &tmpStr[0], tmp_buffer_size, NULL, NULL);
+    int size_needed = WideCharToMultiByte(CP_UTF8, 0, wstr, (int)nbChars, &tmpStr[0], tmp_buffer_size, NULL, NULL);
     if (size_needed < tmp_buffer_size)
     {
         return tmpStr.substr(0, size_needed);
     }
 
     std::string strTo(size_needed, 0);
-    WideCharToMultiByte(CP_UTF8, 0, &wstr[0], (int)wstr.size(), &strTo[0], size_needed, NULL, NULL);
+    WideCharToMultiByte(CP_UTF8, 0, wstr, (int)nbChars, &strTo[0], size_needed, NULL, NULL);
     return strTo;
 #else
-    std::u16string ustr(reinterpret_cast<const char16_t*>(wstr.c_str()));
+    // WCHAR is UTF-16 on non-Windows platforms in the CoreCLR PAL.
+    std::u16string ustr(reinterpret_cast<const char16_t*>(wstr), nbChars);
     return miniutf::to_utf8(ustr);
 #endif
 }
@@ -69,9 +73,28 @@ WSTRING ToWSTRING(const std::string& str)
 #endif
 }
 
-WSTRING ToWSTRING(const uint64_t i)
+// Taken from
+// https://chromium.googlesource.com/chromium/src/base/+/refs/heads/main/strings/string_number_conversions_internal.h
+// static STR IntToStringT(INT value)
+// simplified for our case
+WSTRING ToWSTRING(const uint64_t value)
 {
-    return WSTRING(reinterpret_cast<const WCHAR*>(std::to_wstring(i).c_str()));
+    // log10(2) ~= 0.3 bytes needed per bit or per byte log10(2**8) ~= 2.4.
+    const size_t bufferSize = 3 * sizeof(uint64_t);
+
+    // Create the string in a temporary buffer, write it back to front, and
+    // then return the substr of what we ended up using.
+    WCHAR  outbuf[bufferSize];
+    WCHAR* end = outbuf + bufferSize;
+    WCHAR* i   = end;
+    auto   res = value;
+    do
+    {
+        --i;
+        *i = static_cast<WCHAR>((res % 10) + WStr('0'));
+        res /= 10;
+    } while (res != 0);
+    return WSTRING(i, end);
 }
 
 } // namespace trace

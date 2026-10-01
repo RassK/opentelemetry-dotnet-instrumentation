@@ -32,7 +32,7 @@ namespace trace
 ///       - Invoke BeginMethod with object instance (or null if static method) and original method arguments
 ///       - Store result into CallTargetState local
 ///     }
-///     catch
+///     catch when exception is not OpenTelemetry.AutoInstrumentation.CallTarget.CallTargetBubbleUpException
 ///     {
 ///       - Invoke LogException(Exception)
 ///     }
@@ -56,7 +56,7 @@ namespace trace
 ///     - Store result into CallTargetReturn/CallTargetReturn<TReturn> local
 ///     - If non-void method, store CallTargetReturn<TReturn>.GetReturnValue() into TReturn local
 ///   }
-///   catch
+///   catch when exception is not OpenTelemetry.AutoInstrumentation.CallTarget.CallTargetBubbleUpException
 ///   {
 ///     - Invoke LogException(Exception)
 ///   }
@@ -70,11 +70,20 @@ namespace trace
 /// <returns>Result of the rewriting</returns>
 HRESULT TracerMethodRewriter::Rewrite(RejitHandlerModule* moduleHandler, RejitHandlerModuleMethod* methodHandler)
 {
+    /*  ===============================
+        Current CallTarget Limitations:
+        ===============================
+
+        1. Static methods in a value type (struct) cannot be instrumented.
+        2. Generic value types (structs) cannot be instrumented.
+        3. Nested value types inside a generic parent type do not expose the type instance; the instance is null.
+        4. Nested reference types inside a generic parent type expose the type instance as object.
+        5. Methods in a generic type expose the instance as a non-generic base type or object.
+    */
+
     if (methodHandler == nullptr)
     {
-        Logger::Error("TracerMethodRewriter::Rewrite: methodHandler is null. "
-                      "MethodDef: ",
-                      methodHandler->GetMethodDef());
+        Logger::Error("TracerMethodRewriter::Rewrite: methodHandler is null.");
 
         return S_FALSE;
     }
@@ -167,17 +176,20 @@ HRESULT TracerMethodRewriter::Rewrite(RejitHandlerModule* moduleHandler, RejitHa
     reWriterWrapper.SetILPosition(rewriter.GetILList()->m_pNext);
 
     // *** Modify the Local Var Signature of the method and initialize the new local vars
-    ULONG    callTargetStateIndex  = static_cast<ULONG>(ULONG_MAX);
-    ULONG    exceptionIndex        = static_cast<ULONG>(ULONG_MAX);
-    ULONG    callTargetReturnIndex = static_cast<ULONG>(ULONG_MAX);
-    ULONG    returnValueIndex      = static_cast<ULONG>(ULONG_MAX);
-    mdToken  callTargetStateToken  = mdTokenNil;
-    mdToken  exceptionToken        = mdTokenNil;
-    mdToken  callTargetReturnToken = mdTokenNil;
-    ILInstr* firstInstruction      = nullptr;
-    hr = tracerTokens->ModifyLocalSigAndInitialize(&reWriterWrapper, caller, &callTargetStateIndex, &exceptionIndex,
-                                                   &callTargetReturnIndex, &returnValueIndex, &callTargetStateToken,
-                                                   &exceptionToken, &callTargetReturnToken, &firstInstruction);
+    ULONG              callTargetStateIndex  = static_cast<ULONG>(ULONG_MAX);
+    ULONG              exceptionIndex        = static_cast<ULONG>(ULONG_MAX);
+    ULONG              callTargetReturnIndex = static_cast<ULONG>(ULONG_MAX);
+    ULONG              returnValueIndex      = static_cast<ULONG>(ULONG_MAX);
+    std::vector<ULONG> additionalLocalIndices(tracerTokens->GetAdditionalLocalsCount());
+    mdToken            callTargetStateToken  = mdTokenNil;
+    mdToken            exceptionToken        = mdTokenNil;
+    mdToken            callTargetReturnToken = mdTokenNil;
+    ILInstr*           firstInstruction      = nullptr;
+    auto               returnType            = caller->method_signature.GetReturnValue();
+    hr = tracerTokens->ModifyLocalSigAndInitialize(&reWriterWrapper, &returnType, &callTargetStateIndex,
+                                                   &exceptionIndex, &callTargetReturnIndex, &returnValueIndex,
+                                                   &callTargetStateToken, &exceptionToken, &callTargetReturnToken,
+                                                   &firstInstruction, additionalLocalIndices);
     if (FAILED(hr))
     {
         // Signature/local modification failed (e.g. the method's signature is too large to
@@ -187,6 +199,9 @@ HRESULT TracerMethodRewriter::Rewrite(RejitHandlerModule* moduleHandler, RejitHa
                      ", skipping instrumentation for ", caller->type.name, ".", caller->name, "()");
         return S_FALSE;
     }
+
+    ULONG beginMethodExceptionIndex = additionalLocalIndices[0];
+    ULONG endMethodExceptionIndex   = additionalLocalIndices[1];
 
     // ***
     // BEGIN METHOD PART
@@ -211,28 +226,37 @@ HRESULT TracerMethodRewriter::Rewrite(RejitHandlerModule* moduleHandler, RejitHa
     }
     else
     {
-        reWriterWrapper.LoadArgument(0);
-        if (caller->type.valueType)
+        bool    callerTypeIsValueType = caller->type.valueType;
+        mdToken callerTypeToken       = tracerTokens->GetCurrentTypeRef(&caller->type, callerTypeIsValueType);
+        if (callerTypeToken == mdTokenNil)
         {
-            if (caller->type.type_spec != mdTypeSpecNil)
+            reWriterWrapper.LoadNull();
+        }
+        else
+        {
+            reWriterWrapper.LoadArgument(0);
+            if (caller->type.valueType)
             {
-                reWriterWrapper.LoadObj(caller->type.type_spec);
-            }
-            else if (!caller->type.isGeneric)
-            {
-                reWriterWrapper.LoadObj(caller->type.id);
-            }
-            else
-            {
-                // Generic struct instrumentation is not supported
-                // IMetaDataImport::GetMemberProps and IMetaDataImport::GetMemberRefProps returns
-                // The parent token as mdTypeDef and not as a mdTypeSpec
-                // that's because the method definition is stored in the mdTypeDef
-                // The problem is that we don't have the exact Spec of that generic
-                // We can't emit LoadObj or Box because that would result in an invalid IL.
-                // This problem doesn't occur on a class type because we can always relay in the
-                // object type.
-                return S_FALSE;
+                if (caller->type.type_spec != mdTypeSpecNil)
+                {
+                    reWriterWrapper.LoadObj(caller->type.type_spec);
+                }
+                else if (!caller->type.isGeneric)
+                {
+                    reWriterWrapper.LoadObj(caller->type.id);
+                }
+                else
+                {
+                    // Generic struct instrumentation is not supported
+                    // IMetaDataImport::GetMemberProps and IMetaDataImport::GetMemberRefProps returns
+                    // The parent token as mdTypeDef and not as a mdTypeSpec
+                    // that's because the method definition is stored in the mdTypeDef
+                    // The problem is that we don't have the exact Spec of that generic
+                    // We can't emit LoadObj or Box because that would result in an invalid IL.
+                    // This problem doesn't occur on a class type because we can always relay in the
+                    // object type.
+                    return S_FALSE;
+                }
             }
         }
     }
@@ -375,19 +399,43 @@ HRESULT TracerMethodRewriter::Rewrite(RejitHandlerModule* moduleHandler, RejitHa
     reWriterWrapper.StLocal(callTargetStateIndex);
     ILInstr* pStateLeaveToBeginOriginalMethodInstr = reWriterWrapper.CreateInstr(CEE_LEAVE_S);
 
-    // *** BeginMethod call catch
+    // *** BeginMethod exception filter
+    ILInstr* beginMethodFilter          = nullptr;
     ILInstr* beginMethodCatchFirstInstr = nullptr;
+    if (corProfiler->call_target_bubble_up_exception_available)
+    {
+        beginMethodFilter =
+            CreateFilterForException(&reWriterWrapper, tracerTokens->GetExceptionTypeRef(),
+                                     tracerTokens->GetBubbleUpExceptionTypeRef(), beginMethodExceptionIndex);
+        Logger::Debug("Creating filter for CallTargetBubbleUpException (BeginMethod).");
+        beginMethodCatchFirstInstr = reWriterWrapper.Pop();
+        reWriterWrapper.LoadLocal(beginMethodExceptionIndex);
+    }
+
+    // *** BeginMethod call catch
     tracerTokens->WriteLogException(&reWriterWrapper, integration_type_ref, &caller->type, &beginMethodCatchFirstInstr);
     ILInstr* beginMethodCatchLeaveInstr = reWriterWrapper.CreateInstr(CEE_LEAVE_S);
 
     // *** BeginMethod exception handling clause
     EHClause beginMethodExClause{};
-    beginMethodExClause.m_Flags         = COR_ILEXCEPTION_CLAUSE_NONE;
-    beginMethodExClause.m_pTryBegin     = firstInstruction;
-    beginMethodExClause.m_pTryEnd       = beginMethodCatchFirstInstr;
-    beginMethodExClause.m_pHandlerBegin = beginMethodCatchFirstInstr;
-    beginMethodExClause.m_pHandlerEnd   = beginMethodCatchLeaveInstr;
-    beginMethodExClause.m_ClassToken    = tracerTokens->GetExceptionTypeRef();
+    if (corProfiler->call_target_bubble_up_exception_available)
+    {
+        beginMethodExClause.m_Flags         = COR_ILEXCEPTION_CLAUSE_FILTER;
+        beginMethodExClause.m_pTryBegin     = firstInstruction;
+        beginMethodExClause.m_pTryEnd       = beginMethodFilter;
+        beginMethodExClause.m_pHandlerBegin = beginMethodCatchFirstInstr;
+        beginMethodExClause.m_pHandlerEnd   = beginMethodCatchLeaveInstr;
+        beginMethodExClause.m_pFilter       = beginMethodFilter;
+    }
+    else
+    {
+        beginMethodExClause.m_Flags         = COR_ILEXCEPTION_CLAUSE_NONE;
+        beginMethodExClause.m_pTryBegin     = firstInstruction;
+        beginMethodExClause.m_pTryEnd       = beginMethodCatchFirstInstr;
+        beginMethodExClause.m_pHandlerBegin = beginMethodCatchFirstInstr;
+        beginMethodExClause.m_pHandlerEnd   = beginMethodCatchLeaveInstr;
+        beginMethodExClause.m_ClassToken    = tracerTokens->GetExceptionTypeRef();
+    }
 
     // ***
     // METHOD EXECUTION
@@ -439,28 +487,37 @@ HRESULT TracerMethodRewriter::Rewrite(RejitHandlerModule* moduleHandler, RejitHa
     }
     else
     {
-        endMethodTryStartInstr = reWriterWrapper.LoadArgument(0);
-        if (caller->type.valueType)
+        bool    callerTypeIsValueType = caller->type.valueType;
+        mdToken callerTypeToken       = tracerTokens->GetCurrentTypeRef(&caller->type, callerTypeIsValueType);
+        if (callerTypeToken == mdTokenNil)
         {
-            if (caller->type.type_spec != mdTypeSpecNil)
+            endMethodTryStartInstr = reWriterWrapper.LoadNull();
+        }
+        else
+        {
+            endMethodTryStartInstr = reWriterWrapper.LoadArgument(0);
+            if (caller->type.valueType)
             {
-                reWriterWrapper.LoadObj(caller->type.type_spec);
-            }
-            else if (!caller->type.isGeneric)
-            {
-                reWriterWrapper.LoadObj(caller->type.id);
-            }
-            else
-            {
-                // Generic struct instrumentation is not supported
-                // IMetaDataImport::GetMemberProps and IMetaDataImport::GetMemberRefProps returns
-                // The parent token as mdTypeDef and not as a mdTypeSpec
-                // that's because the method definition is stored in the mdTypeDef
-                // The problem is that we don't have the exact Spec of that generic
-                // We can't emit LoadObj or Box because that would result in an invalid IL.
-                // This problem doesn't occur on a class type because we can always relay in the
-                // object type.
-                return S_FALSE;
+                if (caller->type.type_spec != mdTypeSpecNil)
+                {
+                    reWriterWrapper.LoadObj(caller->type.type_spec);
+                }
+                else if (!caller->type.isGeneric)
+                {
+                    reWriterWrapper.LoadObj(caller->type.id);
+                }
+                else
+                {
+                    // Generic struct instrumentation is not supported
+                    // IMetaDataImport::GetMemberProps and IMetaDataImport::GetMemberRefProps returns
+                    // The parent token as mdTypeDef and not as a mdTypeSpec
+                    // that's because the method definition is stored in the mdTypeDef
+                    // The problem is that we don't have the exact Spec of that generic
+                    // We can't emit LoadObj or Box because that would result in an invalid IL.
+                    // This problem doesn't occur on a class type because we can always relay in the
+                    // object type.
+                    return S_FALSE;
+                }
             }
         }
     }
@@ -509,19 +566,43 @@ HRESULT TracerMethodRewriter::Rewrite(RejitHandlerModule* moduleHandler, RejitHa
 
     ILInstr* endMethodTryLeave = reWriterWrapper.CreateInstr(CEE_LEAVE_S);
 
-    // *** EndMethod call catch
+    // *** EndMethod exception filter
+    ILInstr* endMethodFilter          = nullptr;
     ILInstr* endMethodCatchFirstInstr = nullptr;
+    if (corProfiler->call_target_bubble_up_exception_available)
+    {
+        endMethodFilter =
+            CreateFilterForException(&reWriterWrapper, tracerTokens->GetExceptionTypeRef(),
+                                     tracerTokens->GetBubbleUpExceptionTypeRef(), endMethodExceptionIndex);
+        Logger::Debug("Creating filter for CallTargetBubbleUpException (EndMethod).");
+        endMethodCatchFirstInstr = reWriterWrapper.Pop();
+        reWriterWrapper.LoadLocal(endMethodExceptionIndex);
+    }
+
+    // *** EndMethod call catch
     tracerTokens->WriteLogException(&reWriterWrapper, integration_type_ref, &caller->type, &endMethodCatchFirstInstr);
     ILInstr* endMethodCatchLeaveInstr = reWriterWrapper.CreateInstr(CEE_LEAVE_S);
 
     // *** EndMethod exception handling clause
     EHClause endMethodExClause{};
-    endMethodExClause.m_Flags         = COR_ILEXCEPTION_CLAUSE_NONE;
-    endMethodExClause.m_pTryBegin     = endMethodTryStartInstr;
-    endMethodExClause.m_pTryEnd       = endMethodCatchFirstInstr;
-    endMethodExClause.m_pHandlerBegin = endMethodCatchFirstInstr;
-    endMethodExClause.m_pHandlerEnd   = endMethodCatchLeaveInstr;
-    endMethodExClause.m_ClassToken    = tracerTokens->GetExceptionTypeRef();
+    if (corProfiler->call_target_bubble_up_exception_available)
+    {
+        endMethodExClause.m_Flags         = COR_ILEXCEPTION_CLAUSE_FILTER;
+        endMethodExClause.m_pTryBegin     = endMethodTryStartInstr;
+        endMethodExClause.m_pTryEnd       = endMethodFilter;
+        endMethodExClause.m_pHandlerBegin = endMethodCatchFirstInstr;
+        endMethodExClause.m_pHandlerEnd   = endMethodCatchLeaveInstr;
+        endMethodExClause.m_pFilter       = endMethodFilter;
+    }
+    else
+    {
+        endMethodExClause.m_Flags         = COR_ILEXCEPTION_CLAUSE_NONE;
+        endMethodExClause.m_pTryBegin     = endMethodTryStartInstr;
+        endMethodExClause.m_pTryEnd       = endMethodCatchFirstInstr;
+        endMethodExClause.m_pHandlerBegin = endMethodCatchFirstInstr;
+        endMethodExClause.m_pHandlerEnd   = endMethodCatchLeaveInstr;
+        endMethodExClause.m_ClassToken    = tracerTokens->GetExceptionTypeRef();
+    }
 
     // *** EndMethod leave to finally
     ILInstr* endFinallyInstr            = reWriterWrapper.EndFinally();
@@ -547,13 +628,28 @@ HRESULT TracerMethodRewriter::Rewrite(RejitHandlerModule* moduleHandler, RejitHa
             {
                 if (pInstr != methodReturnInstr)
                 {
-                    if (!isVoid)
+                    if (isVoid)
                     {
-                        reWriterWrapper.SetILPosition(pInstr);
-                        reWriterWrapper.StLocal(returnValueIndex);
+                        pInstr->m_opcode  = CEE_LEAVE_S;
+                        pInstr->m_pTarget = endFinallyInstr->m_pNext;
                     }
-                    pInstr->m_opcode  = CEE_LEAVE_S;
-                    pInstr->m_pTarget = endFinallyInstr->m_pNext;
+                    else
+                    {
+                        pInstr->m_opcode = CEE_STLOC;
+                        pInstr->m_Arg16  = static_cast<INT16>(returnValueIndex);
+                        if (pInstr->m_Arg16 < 0)
+                        {
+                            // We check if the conversion returned negative numbers.
+                            Logger::Error("The local variable index for the return value ('returnValueIndex') cannot "
+                                          "be lower than zero.");
+                            return S_FALSE;
+                        }
+
+                        ILInstr* leaveInstr   = rewriter.NewILInstr();
+                        leaveInstr->m_opcode  = CEE_LEAVE_S;
+                        leaveInstr->m_pTarget = endFinallyInstr->m_pNext;
+                        rewriter.InsertAfter(pInstr, leaveInstr);
+                    }
                 }
                 break;
             }
@@ -618,6 +714,35 @@ HRESULT TracerMethodRewriter::Rewrite(RejitHandlerModule* moduleHandler, RejitHa
                  "() [IsVoid=", isVoid, ", IsStatic=", isStatic,
                  ", IntegrationType=", integration_definition->integration_type.name, ", Arguments=", numArgs, "]");
     return S_OK;
+}
+
+ILInstr* TracerMethodRewriter::CreateFilterForException(ILRewriterWrapper* rewriter,
+                                                        mdTypeRef          exceptionTypeRef,
+                                                        mdTypeRef          bubbleUpExceptionTypeRef,
+                                                        ULONG              exceptionValueIndex) const
+{
+    ILInstr* filter = rewriter->CreateInstr(CEE_ISINST);
+    filter->m_Arg32 = exceptionTypeRef;
+    rewriter->CreateInstr(CEE_DUP);
+    ILInstr* isException = rewriter->CreateInstr(CEE_BRTRUE_S);
+    rewriter->CreateInstr(CEE_POP);
+    rewriter->LoadInt32(0);
+    ILInstr* endNotException = rewriter->CreateInstr(CEE_BR_S);
+
+    ILInstr* storeException = rewriter->StLocal(exceptionValueIndex);
+    rewriter->LoadLocal(exceptionValueIndex);
+    ILInstr* testBubbleUp  = rewriter->CreateInstr(CEE_ISINST);
+    testBubbleUp->m_Arg32  = bubbleUpExceptionTypeRef;
+    isException->m_pTarget = storeException;
+    rewriter->LoadNull();
+    rewriter->CreateInstr(CEE_CGT_UN);
+    rewriter->LoadInt32(0);
+    rewriter->CreateInstr(CEE_CEQ);
+    rewriter->LoadInt32(0);
+    rewriter->CreateInstr(CEE_CGT_UN);
+    ILInstr* endFilter         = rewriter->CreateInstr(CEE_ENDFILTER);
+    endNotException->m_pTarget = endFilter;
+    return filter;
 }
 
 } // namespace trace

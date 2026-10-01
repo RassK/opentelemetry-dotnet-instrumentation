@@ -37,11 +37,10 @@ AssemblyReference* AssemblyReference::GetFromCache(const WSTRING& str)
     return aref;
 }
 
-std::vector<IntegrationDefinition> GetIntegrationsFromTraceMethodsConfiguration(
-    const WSTRING& integration_assembly_name, const WSTRING& integration_type_name, const WSTRING& configuration_string)
+std::vector<IntegrationDefinition> GetIntegrationsFromTraceMethodsConfiguration(const TypeReference& integration_type,
+                                                                                const WSTRING& configuration_string)
 {
     std::vector<IntegrationDefinition> integrationDefinitions;
-    const auto& integration_type = TypeReference(integration_assembly_name, integration_type_name, {}, {});
 
     auto dd_trace_methods_type = Split(configuration_string, ';');
 
@@ -74,19 +73,27 @@ std::vector<IntegrationDefinition> GetIntegrationsFromTraceMethodsConfiguration(
         auto method_definitions_array = Split(method_definitions, ',');
         for (const WSTRING& method_definition : method_definitions_array)
         {
-            // TODO handle a * wildcard, where a * wildcard invalidates other entries for the same type
             std::vector<WSTRING> signatureTypes;
             integrationDefinitions.push_back(
                 IntegrationDefinition(MethodReference(tracemethodintegration_assemblyname, type_name, method_definition,
                                                       Version(0, 0, 0, 0),
                                                       Version(USHRT_MAX, USHRT_MAX, USHRT_MAX, USHRT_MAX),
                                                       signatureTypes),
-                                      integration_type, false, false));
+                                      integration_type, false, false, false));
 
             if (Logger::IsDebugEnabled())
             {
-                Logger::Debug("GetIntegrationsFromTraceMethodsConfiguration:  * Target: ", type_name, ".",
-                              method_definition, "(", signatureTypes.size(), ")");
+                if (method_definition == tracemethodintegration_wildcardmethodname)
+                {
+                    Logger::Debug("GetIntegrationsFromTraceMethodsConfiguration:  * Target: ", type_name,
+                                  ".* -- All methods except .ctor, .cctor, Equals, Finalize, GetHashCode, ToString,"
+                                  " and property getters/setters will automatically be instrumented.");
+                }
+                else
+                {
+                    Logger::Debug("GetIntegrationsFromTraceMethodsConfiguration:  * Target: ", type_name, ".",
+                                  method_definition, "(", signatureTypes.size(), ")");
+                }
             }
         }
     }
@@ -104,14 +111,14 @@ WSTRING GetNameFromAssemblyReferenceString(const WSTRING& wstr)
     auto pos = name.find(WStr(','));
     if (pos != WSTRING::npos)
     {
-        name = name.substr(0, pos);
+        name.resize(pos);
     }
 
     // strip spaces
     pos = name.rfind(WStr(' '));
     if (pos != WSTRING::npos)
     {
-        name = name.substr(0, pos);
+        name.resize(pos);
     }
 
     return name;
